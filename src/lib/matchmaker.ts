@@ -2,11 +2,32 @@ import type { TalentProfile } from "@/types";
 import { getRankedTalent, searchTalent } from "@/lib/data/talent-repository";
 import { formatRecord } from "@/lib/utils";
 import { isUsableImageUrl } from "@/lib/utils/avatar-fallback";
+import { getCountryLabel, talentMatchesCountry } from "@/lib/utils/region-match";
 
 export interface MatchmakerCriteria {
   sport?: string;
   weightClass?: string;
+  country?: string;
+  gender?: "male" | "female";
   brief: string;
+}
+
+function talentMatchesGender(
+  t: TalentProfile,
+  gender?: "male" | "female"
+): boolean {
+  if (!gender) return true;
+  if (t.gender === gender) return true;
+  if (!t.gender && gender === "female" && /\b(women|female)\b/i.test(t.bio)) {
+    return true;
+  }
+  return false;
+}
+
+function genderLabel(gender?: "male" | "female"): string {
+  if (gender === "female") return "Female";
+  if (gender === "male") return "Male";
+  return "any gender";
 }
 
 export interface MatchmakerPick {
@@ -41,7 +62,9 @@ function briefMentions(brief: string, ...terms: string[]): boolean {
 /** Score how well an athlete fits the event brief (on top of weight/sport filter) */
 export function scoreTalentForBrief(
   t: TalentProfile,
-  brief: string
+  brief: string,
+  countryId?: string,
+  gender?: "male" | "female"
 ): { score: number; reasons: string[] } {
   const reasons: string[] = [];
   let score = 0;
@@ -117,6 +140,36 @@ export function scoreTalentForBrief(
     reasons.push("Regional match in brief");
   }
 
+  if (countryId) {
+    if (talentMatchesCountry(t, countryId)) {
+      score += 45;
+      reasons.push(`Country: ${getCountryLabel(countryId) ?? countryId}`);
+    } else {
+      score -= 30;
+    }
+  }
+
+  if (gender) {
+    if (t.gender === gender) {
+      score += 40;
+      reasons.push(gender === "female" ? "Female athlete" : "Male athlete");
+    } else if (talentMatchesGender(t, gender) && !t.gender) {
+      score += 18;
+      reasons.push(`Likely ${gender} (profile hints)`);
+    } else if (t.gender && t.gender !== gender) {
+      score -= 45;
+    }
+  }
+
+  if (briefMentions(brief, "female", "women", "woman") && t.gender === "female") {
+    score += 12;
+    reasons.push("Women's division fit (brief)");
+  }
+  if (briefMentions(brief, "male", "men", "man") && t.gender === "male") {
+    score += 12;
+    reasons.push("Men's division fit (brief)");
+  }
+
   if (reasons.length === 0) reasons.push("Matches sport & weight criteria");
 
   return { score, reasons: [...new Set(reasons)].slice(0, 4) };
@@ -128,10 +181,13 @@ export async function findMatchmakerCandidates(
 ): Promise<{ picks: MatchmakerPick[]; poolSize: number }> {
   const sport = normalizeToken(criteria.sport) || undefined;
   const weightClass = criteria.weightClass?.trim() || undefined;
+  const country = criteria.country?.trim() || undefined;
+  const gender = criteria.gender;
 
   let pool = await searchTalent({
     sport: sport || undefined,
     weightClass: weightClass || undefined,
+    gender,
     availableOnly: briefMentions(
       criteria.brief,
       "available",
@@ -139,6 +195,15 @@ export async function findMatchmakerCandidates(
       "active"
     ),
   });
+
+  if (country) {
+    pool = pool.filter((t) => talentMatchesCountry(t, country));
+  }
+
+  if (gender) {
+    const byGender = pool.filter((t) => talentMatchesGender(t, gender));
+    if (byGender.length > 0) pool = byGender;
+  }
 
   const ranked = await getRankedTalent({
     sport: sport || undefined,
@@ -148,7 +213,12 @@ export async function findMatchmakerCandidates(
 
   const scored = pool
     .map((t) => {
-      const { score, reasons } = scoreTalentForBrief(t, criteria.brief);
+      const { score, reasons } = scoreTalentForBrief(
+        t,
+        criteria.brief,
+        country,
+        gender
+      );
       const rankBoost = rankOrder.has(t.slug)
         ? Math.max(0, 30 - (rankOrder.get(t.slug) ?? 30))
         : 0;
@@ -183,10 +253,11 @@ export function formatMatchmakerMarkdown(
 ): string {
   const sportLabel = criteria.sport?.toUpperCase() || "ANY SPORT";
   const wcLabel = criteria.weightClass?.trim() || "any class";
+  const countryLabel = getCountryLabel(criteria.country) ?? "any country";
   const lines: string[] = [
     "**ScoutFight Matchmaker**",
     "",
-    `**Criteria:** ${sportLabel} · ${wcLabel}`,
+    `**Criteria:** ${sportLabel} · ${wcLabel} · ${countryLabel} · ${genderLabel(criteria.gender)}`,
     `**Brief:** ${criteria.brief}`,
     `**Pool:** ${poolSize} athlete${poolSize === 1 ? "" : "s"} matched filters`,
     "",
@@ -194,9 +265,9 @@ export function formatMatchmakerMarkdown(
 
   if (picks.length === 0) {
     lines.push(
-      "No athletes match this sport/weight class in the live directory.",
+      "No athletes match this sport, weight, country, and gender in the live directory.",
       "",
-      "Try a broader weight class, another discipline, or check **Discover** for the full roster."
+      "Try **Any gender** or **Any country**, a broader weight class, or check **Discover** for the full roster."
     );
     if (aiNote) lines.push("", aiNote);
     return lines.join("\n");

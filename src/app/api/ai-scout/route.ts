@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { openai, SCOUT_SYSTEM_PROMPT } from "@/lib/openai";
-import { getAllTalent } from "@/lib/data/talent-repository";
+import {
+  findScoutMatches,
+  formatScoutReply,
+  rosterSummaryForScout,
+} from "@/lib/ai-scout";
 
 const requestSchema = z.object({
   message: z.string().min(1).max(2000),
@@ -22,46 +26,48 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   }
 
-  const roster = await getAllTalent();
-  const talentContext = roster.slice(0, 8)
-    .map(
-      (a) =>
-        `- ${a.displayName} (${a.sport}, ${a.weightClass ?? "N/A"}): ${a.record ? `${a.record.wins}-${a.record.losses}` : "N/A"}, ${a.location}, verified: ${a.verification}`
-    )
-    .join("\n");
+  const { query, picks, poolSize } = await findScoutMatches(parsed.data.message, 12);
 
-  if (!openai) {
-    return NextResponse.json({
-      reply: `**ScoutFight AI (Demo)**\n\nQuestion: "${parsed.data.message}"\n\nLive roster (seed + Wikipedia + APIs):\n${talentContext}\n\nSet OPENAI_API_KEY for full GPT scouting analysis.`,
-      source: "demo",
-    });
+  let aiNote: string | undefined;
+  let source: "rules" | "openai" = "rules";
+
+  if (openai && picks.length > 0) {
+    try {
+      const completion = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [
+          {
+            role: "system",
+            content: `${SCOUT_SYSTEM_PROMPT}\n\nPre-filtered matches only — do not invent athletes:\n${rosterSummaryForScout(picks)}`,
+          },
+          {
+            role: "user",
+            content: parsed.data.message,
+          },
+        ],
+        max_tokens: 500,
+        temperature: 0.5,
+      });
+      aiNote = completion.choices[0]?.message?.content ?? undefined;
+      if (aiNote) source = "openai";
+    } catch (e) {
+      console.warn("[ScoutFight] AI Scout OpenAI:", e);
+    }
   }
 
-  const messages: Array<{
-    role: "system" | "user" | "assistant";
-    content: string;
-  }> = [
-    {
-      role: "system",
-      content: `${SCOUT_SYSTEM_PROMPT}\n\nCurrent platform talent sample:\n${talentContext}`,
-    },
-    ...(parsed.data.history ?? []).map((m) => ({
-      role: m.role as "user" | "assistant",
-      content: m.content,
-    })),
-    { role: "user", content: parsed.data.message },
-  ];
+  const reply = formatScoutReply(
+    parsed.data.message,
+    query,
+    picks,
+    poolSize,
+    aiNote
+  );
 
-  const completion = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
-    messages,
-    max_tokens: 800,
-    temperature: 0.7,
+  return NextResponse.json({
+    reply,
+    source,
+    matches: picks,
+    poolSize,
+    filters: query,
   });
-
-  const reply =
-    completion.choices[0]?.message?.content ??
-    "I could not generate a scouting response. Please try again.";
-
-  return NextResponse.json({ reply, source: "openai" });
 }

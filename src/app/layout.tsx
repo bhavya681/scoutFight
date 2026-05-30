@@ -1,8 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Oswald } from "next/font/google";
 import { Providers } from "@/components/providers";
-import { AiScoutPanel } from "@/components/ai/ai-scout-panel";
-import { AiMatchmakerPanel } from "@/components/ai/ai-matchmaker-panel";
+import { TalentAiPanel } from "@/components/ai/talent-ai-panel";
 import { CompareBar } from "@/components/compare/compare-bar";
 import { APP_NAME, APP_TAGLINE, APP_DESCRIPTION, APP_LOGO } from "@/lib/constants";
 import "./globals.css";
@@ -78,8 +77,7 @@ export default function RootLayout({
         <Providers>
           {children}
           <CompareBar />
-          <AiScoutPanel />
-          <AiMatchmakerPanel />
+          <TalentAiPanel />
         </Providers>
       </body>
     </html>

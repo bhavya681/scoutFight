@@ -1,25 +1,32 @@
 import { create } from "zustand";
 
+export type TalentAiTab = "matchmaker" | "scout";
+
 interface UIState {
   mobileMenuOpen: boolean;
-  aiScoutOpen: boolean;
-  aiMatchmakerOpen: boolean;
+  talentAiOpen: boolean;
+  talentAiTab: TalentAiTab;
   setMobileMenuOpen: (open: boolean) => void;
-  setAiScoutOpen: (open: boolean) => void;
-  setAiMatchmakerOpen: (open: boolean) => void;
+  setTalentAiOpen: (open: boolean) => void;
+  setTalentAiTab: (tab: TalentAiTab) => void;
   toggleMobileMenu: () => void;
-  toggleAiScout: () => void;
-  toggleAiMatchmaker: () => void;
+  toggleTalentAi: () => void;
+  openTalentAi: (tab?: TalentAiTab) => void;
 }
 
 export const useUIStore = create<UIState>((set) => ({
   mobileMenuOpen: false,
-  aiScoutOpen: false,
-  aiMatchmakerOpen: false,
+  talentAiOpen: false,
+  talentAiTab: "matchmaker",
   setMobileMenuOpen: (open) => set({ mobileMenuOpen: open }),
-  setAiScoutOpen: (open) => set({ aiScoutOpen: open }),
-  setAiMatchmakerOpen: (open) => set({ aiMatchmakerOpen: open }),
+  setTalentAiOpen: (open) => set({ talentAiOpen: open }),
+  setTalentAiTab: (tab) => set({ talentAiTab: tab }),
   toggleMobileMenu: () => set((s) => ({ mobileMenuOpen: !s.mobileMenuOpen })),
-  toggleAiScout: () => set((s) => ({ aiScoutOpen: !s.aiScoutOpen })),
-  toggleAiMatchmaker: () => set((s) => ({ aiMatchmakerOpen: !s.aiMatchmakerOpen })),
+  toggleTalentAi: () => set((s) => ({ talentAiOpen: !s.talentAiOpen })),
+  openTalentAi: (tab = "matchmaker") =>
+    set((s) => ({
+      talentAiOpen: true,
+      talentAiTab: tab,
+      mobileMenuOpen: false,
+    })),
 }));

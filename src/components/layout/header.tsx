@@ -2,17 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  Bell,
-  LayoutDashboard,
-  Menu,
-  Moon,
-  Search,
-  Sparkles,
-  Sun,
-  X,
-} from "lucide-react";
+import { Bell, LayoutDashboard, Menu, Moon, Search, Sun, X } from "lucide-react";
 import { BrandLogo } from "@/components/brand/brand-logo";
+import { TalentAiIcon } from "@/components/ai/talent-ai-icon";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import { NAV_LINKS } from "@/lib/constants";
@@ -23,7 +15,8 @@ import { useNotificationsStore } from "@/stores/notifications-store";
 export function Header() {
   const pathname = usePathname();
   const { theme, setTheme } = useTheme();
-  const { mobileMenuOpen, setMobileMenuOpen, toggleAiScout, toggleAiMatchmaker } = useUIStore();
+  const { mobileMenuOpen, setMobileMenuOpen, toggleTalentAi, openTalentAi, talentAiOpen } =
+    useUIStore();
   const unreadCount = useNotificationsStore((s) => s.unreadCount);
 
   return (
@@ -49,11 +42,16 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-1">
-          <Button variant="ghost" size="icon" className="hidden md:flex" onClick={toggleAiMatchmaker} title="AI Matchmaker">
-            <Sparkles className="h-4 w-4 text-pwr-gold" />
-          </Button>
-          <Button variant="ghost" size="icon" className="hidden md:flex" onClick={toggleAiScout} title="AI Scout">
-            <LayoutDashboard className="h-4 w-4" />
+          <Button
+            variant="ghost"
+            size="icon"
+            className="hidden md:flex"
+            onClick={toggleTalentAi}
+            title="Talent Research — matchmaker & scout"
+            aria-label="Talent Research"
+            aria-pressed={talentAiOpen}
+          >
+            <TalentAiIcon size="sm" className={talentAiOpen ? "ring-2 ring-pwr-red/40" : ""} />
           </Button>
           <Button variant="ghost" size="icon" asChild className="hidden sm:flex">
             <Link href="/discover"><Search className="h-4 w-4" /></Link>
@@ -108,7 +106,15 @@ export function Header() {
               {link.label}
             </Link>
           ))}
-          <Button className="w-full mt-4" asChild onClick={() => setMobileMenuOpen(false)}>
+          <Button
+            variant="outline"
+            className="w-full mt-3 gap-2 justify-start"
+            onClick={() => openTalentAi("matchmaker")}
+          >
+            <TalentAiIcon size="sm" />
+            Talent Research
+          </Button>
+          <Button className="w-full mt-2" asChild onClick={() => setMobileMenuOpen(false)}>
             <Link href="/dashboard?role=recruiter">Open dashboard</Link>
           </Button>
         </div>
