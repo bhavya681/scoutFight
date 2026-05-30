@@ -32,7 +32,7 @@ export function TalentAiPanel() {
           >
             <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3.5">
               <div className="flex items-center gap-3 min-w-0">
-                <TalentAiIcon size="md" />
+                <TalentAiIcon size="lg" showAiBadge />
                 <div className="min-w-0">
                   <h2 className="font-display font-semibold text-sm tracking-wide text-foreground">
                     Talent Research

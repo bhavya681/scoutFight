@@ -51,7 +51,7 @@ export function Header() {
             aria-label="Talent Research"
             aria-pressed={talentAiOpen}
           >
-            <TalentAiIcon size="sm" className={talentAiOpen ? "ring-2 ring-pwr-red/40" : ""} />
+            <TalentAiIcon size="sm" active={talentAiOpen} />
           </Button>
           <Button variant="ghost" size="icon" asChild className="hidden sm:flex">
             <Link href="/discover"><Search className="h-4 w-4" /></Link>
@@ -111,7 +111,7 @@ export function Header() {
             className="w-full mt-3 gap-2 justify-start"
             onClick={() => openTalentAi("matchmaker")}
           >
-            <TalentAiIcon size="sm" />
+            <TalentAiIcon size="sm" showAiBadge />
             Talent Research
           </Button>
           <Button className="w-full mt-2" asChild onClick={() => setMobileMenuOpen(false)}>

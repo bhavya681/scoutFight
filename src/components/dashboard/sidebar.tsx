@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { ScanSearch } from "lucide-react";
+import { TalentAiIcon } from "@/components/ai/talent-ai-icon";
 import { cn } from "@/lib/utils";
 import { DASHBOARD_LINKS } from "@/lib/constants";
 import {
@@ -26,9 +26,7 @@ export function DashboardSidebar({ role: defaultRole = "recruiter" }: { role?: D
   return (
     <aside className="hidden lg:flex w-64 flex-col border-r border-white/10 bg-card/50 p-4 shrink-0">
       <Link href="/dashboard" className="flex items-center gap-2 mb-4 px-2">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-pwr-red">
-          <ScanSearch className="h-4 w-4 text-white" strokeWidth={1.75} />
-        </div>
+        <TalentAiIcon size="sm" showAiBadge />
         <span className="font-display font-bold uppercase text-sm tracking-wider">Dashboard</span>
       </Link>
 
