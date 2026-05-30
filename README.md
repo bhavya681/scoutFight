@@ -1,166 +1,251 @@
-# PWR Scout
+# 🥊 ScoutFight
 
-**The Global Talent Marketplace for Combat Sports**
+**Discover. Evaluate. Sign.**
 
-Discover, compare, scout, recruit, negotiate, and manage professional relationships across the entire combat sports industry — not just MMA or wrestling, but every discipline and every role that powers the business.
+ScoutFight is a global combat sports talent marketplace designed to connect athletes, recruiters, scouts, matchmakers, promoters, and industry professionals in one place.
 
-> Transfermarkt × LinkedIn × IMDb — built for combat sports.
+The platform helps combat sports talent gain visibility while giving organizations powerful tools to discover, evaluate, compare, and recruit athletes across multiple disciplines including MMA, wrestling, boxing, kickboxing, Muay Thai, Brazilian Jiu-Jitsu, grappling, and more.
 
-## Who It's For
+---
 
-| Segment | Examples |
-|---------|----------|
-| **Athletes** | Wrestlers, MMA fighters, boxers, kickboxers, Muay Thai, grapplers, BJJ |
-| **Professionals** | Referees, announcers, commentators, managers, agents, coaches |
-| **Organizations** | Promotions, gyms, academies, event companies |
-| **Users** | Talent, recruiters, matchmakers, promoters, scouts, managers, organizers |
+## 🌍 Why ScoutFight Exists
 
-## Features
+Combat sports talent is spread across hundreds of promotions, gyms, organizations, and social media platforms.
 
-- Advanced global talent search
-- Side-by-side talent comparison (Transfermarkt-style)
-- AI Scout + AI Matchmaker
-- Video library & YouTube integration
-- Marketplace (opportunities & talent seeks)
-- Messaging & Recruiter CRM
-- Booking requests & Contract Center
-- Verification system
-- Talent / Recruiter / Admin dashboards
-- Stripe subscriptions
+Many athletes struggle to gain visibility outside their local region, while recruiters and promoters spend countless hours searching through fragmented sources to identify suitable talent.
 
-## Quick Start
+ScoutFight was built to solve this problem by creating a centralized platform where talent can be discovered and opportunities can be created.
 
-```bash
-npm install
-cp .env.example .env.local
-npm run dev
-```
+Our mission is simple:
 
-Open [http://localhost:3000](http://localhost:3000) — runs with **seed data + live APIs** (no Supabase required for MVP).
+**Help athletes get discovered and help recruiters find the right talent faster.**
 
-## Public Pages
+---
 
-| Route | Description |
-|-------|-------------|
-| `/` | Landing — marketplace positioning |
-| `/discover` | Advanced talent search |
-| `/athletes` | Athlete directory |
-| `/athletes/[slug]` | Full talent profile |
-| `/professionals` | Industry professionals |
-| `/professionals/[slug]` | Professional profile |
-| `/organizations` | Organization directory |
-| `/organizations/[slug]` | Org profile (roster, needs, events) |
-| `/compare` | Side-by-side comparison |
-| `/marketplace` | Opportunities & listings |
-| `/rankings` | Rankings by discipline |
-| `/news` | Industry news |
-| `/pricing` | Plans |
-| `/about` | Mission & vision |
-| `/contact` | Contact |
+## 🎯 Who ScoutFight Serves
 
-## Dashboard (role switcher: `?role=talent|recruiter|admin`)
+### Athletes
 
-**Talent:** Profile, videos, analytics, bookings, contracts, visibility, messages
+* Build a professional profile
+* Showcase achievements and career history
+* Display availability for bookings
+* Increase visibility to recruiters and promotions
+* Discover opportunities within the industry
 
-**Recruiter:** Search, recruitment lists, saved candidates, compare, CRM, negotiations, contract center, messages
+### Recruiters & Scouts
 
-**Admin:** Users, verification, moderation, subscriptions, analytics
+* Search athletes across multiple combat sports
+* Compare prospects side by side
+* Create shortlists and talent pipelines
+* Use AI-assisted scouting tools
+* Discover emerging talent worldwide
 
-## Tech Stack
+### Matchmakers & Promoters
 
-Next.js 15+ App Router · TypeScript · Tailwind CSS · shadcn/ui (Radix) · Framer Motion · Supabase · Clerk · Stripe · OpenAI · React Query · Zustand · Vercel
+* Find athletes for upcoming events
+* Search by sport, weight class, country, and gender
+* Identify available fighters quickly
+* Simplify roster-building and event planning
 
-## Data Architecture (MVP Rule)
+### Organizations & Gyms
 
-| Source | Used for |
-|--------|----------|
-### MVP data stack (no single Tapology/Cagematch-style API)
+* Showcase teams and talent
+* Promote events and opportunities
+* Discover athletes that fit organizational needs
 
-| Layer | Sources |
-|-------|---------|
-| **MMA (~100 seed)** | TheSportsDB (UFC rosters) + optional MMA API (records/stats) |
-| **Wrestling (~100 seed)** | Wikidata (SPARQL) + Wikipedia categories — *not* Cagematch (no public API) |
-| **Videos** | YouTube Data API (or Piped fallback) |
-| **Images** | Wikimedia Commons → Wikipedia thumb → TheSportsDB |
-| **Promotions (~20 seed)** | Registry + TheSportsDB fighting leagues + Wikipedia |
-| **Growth** | User-created profiles in Supabase (`USE_SUPABASE_TALENT=true`) |
+### Industry Professionals
 
-Caps live in `src/lib/mvp/config.ts`. Overview: `GET /api/data-sources`.
+ScoutFight is not limited to athletes.
 
-**LinkedIn model:** seed ~100 MMA + ~100 wrestlers from free APIs, then wrestlers/fighters/recruiters add their own profiles.
+The platform also supports:
 
-| **Professionals** | Wikipedia categories + Wikidata |
-| **Marketplace** | Generated from orgs + TheSportsDB events |
+* Referees
+* Coaches
+* Commentators
+* Announcers
+* Managers
+* Agents
+* Other combat sports professionals
 
-Integration layer: `src/lib/integrations/`
+---
 
-## Database
+## 🔍 Talent Discovery
 
-Run migrations in order:
+ScoutFight provides a powerful discovery experience that helps users find relevant talent quickly.
 
-1. `supabase/migrations/001_initial_schema.sql`
-2. `supabase/migrations/002_marketplace_platform.sql`
-3. `supabase/migrations/003_pwr_scout_profiles.sql`
+Users can search using filters such as:
 
-Optional seed: `supabase/seed.sql`
+* Combat sport
+* Weight class
+* Gender
+* Country
+* Availability
+* Verification status
+* Free-text search
 
-## API Routes
+The goal is to make finding talent as simple and efficient as possible.
 
-| Endpoint | Purpose |
-|----------|---------|
-| `GET /api/talent` | Unified athlete talent search |
-| `GET /api/athletes` | Athlete search alias |
-| `GET /api/professionals` | Referees, coaches, announcers, etc. |
-| `GET /api/news` | Combat sports headlines |
-| `POST /api/ai-scout` | AI scouting assistant |
-| `POST /api/ai-matchmaker` | AI matchup recommendations |
-| `POST /api/booking` | Booking requests → `booking_inquiries` when Supabase configured |
-| `POST /api/messages` | Messaging (demo / Supabase-ready) |
-| `POST /api/favorites` | Saved talent |
-| `POST /api/stripe/checkout` | Subscriptions |
-| `POST /api/webhooks/stripe` | Stripe events |
-| `POST /api/webhooks/clerk` | User sync |
+---
 
-## Environment
+## 👤 Professional Profiles
 
-See `.env.example` for:
+Every profile acts as a professional digital resume.
 
-- Clerk, Supabase, Stripe, OpenAI
-- `NEXT_PUBLIC_YOUTUBE_API_KEY` / `YOUTUBE_API_KEY`
-- `THESPORTSDB_API_KEY` (default `3` for dev)
-- `MMA_API_BASE_URL` + `MMA_API_KEY` (optional)
-- `USE_SUPABASE_TALENT=true` to merge DB athletes
+Profiles may include:
 
-## Deployment (Vercel)
+* Athlete biography
+* Nationality
+* Sport and division
+* Professional records
+* Promotion affiliation
+* Profile images
+* Career highlights
+* Availability status
 
-1. Import repo → add env vars
-2. Set `NEXT_PUBLIC_APP_URL` to production domain
-3. Configure Clerk + Stripe webhooks
-4. Run Supabase migrations on production project
+Profiles help recruiters evaluate talent faster while giving athletes a professional online presence.
 
-```bash
-npm run build
-npm start
-```
+---
 
-## Project Structure
+## 📹 Highlights & Media
 
-```
-src/
-├── app/(marketing)/       # Public marketplace pages
-├── app/(dashboard)/       # Talent / Recruiter / Admin dashboards
-├── app/api/               # REST API
-├── components/            # UI, talent, compare, marketplace, AI
-├── lib/data/              # *-discovery.ts modules (API-only catalogs)
-├── data/mock.ts           # Re-exports talent repository
-├── lib/data/              # talent-repository, wikipedia, youtube, *-discovery
-├── lib/integrations/      # TheSportsDB, MMA API adapters
-├── lib/supabase/          # DB helpers (booking inquiries, optional talent read)
-├── stores/                # Zustand (favorites, compare, recruitment)
-└── types/                 # TypeScript models
-supabase/migrations/       # PostgreSQL schema + seed.sql
-```
+ScoutFight helps users explore talent beyond statistics.
 
-## License
+Features include:
 
-Proprietary © PWR Scout
+* Athlete highlight videos
+* Embedded fight footage
+* Media discovery tools
+* Video scouting support
+
+This allows recruiters and promoters to assess talent visually and efficiently.
+
+---
+
+## 📊 Comparison & Evaluation
+
+One of ScoutFight's key features is talent comparison.
+
+Users can compare athletes side-by-side to evaluate:
+
+* Experience
+* Performance records
+* Weight classes
+* Background information
+* Career progression
+
+The comparison experience is inspired by professional sports recruitment platforms.
+
+---
+
+## 🏆 Rankings
+
+ScoutFight provides rankings and category-based views that help users discover notable talent within specific sports and divisions.
+
+Rankings can be explored by:
+
+* Sport
+* Weight class
+* Region
+* Profile activity
+
+---
+
+## 🤖 AI-Powered Talent Research
+
+ScoutFight includes intelligent scouting tools that help users find relevant talent faster.
+
+### Scout Query
+
+Users can search naturally using everyday language.
+
+Examples:
+
+* "Indian female MMA fighters"
+* "Welterweight wrestlers open to bookings"
+* "Heavyweight boxers in Europe"
+
+The platform interprets the request and returns matching talent.
+
+### Event Matchmaker
+
+Recruiters and promoters can describe the type of athlete they need and receive recommended candidates based on:
+
+* Sport
+* Weight class
+* Region
+* Gender
+* Availability
+* Event requirements
+
+This significantly reduces the time required to build fight cards and recruit talent.
+
+---
+
+## 💼 Marketplace & Opportunities
+
+ScoutFight supports recruitment and opportunity discovery through a dedicated marketplace.
+
+Organizations can:
+
+* Post recruitment opportunities
+* Search for available talent
+* Promote upcoming events
+
+Athletes can:
+
+* Explore opportunities
+* Express interest
+* Connect with recruiters
+
+---
+
+## 📅 Booking & Availability
+
+Availability is often one of the biggest challenges in combat sports recruitment.
+
+ScoutFight helps solve this by allowing athletes and professionals to communicate their availability and receive booking inquiries directly through the platform.
+
+---
+
+## ✅ Verification & Trust
+
+Trust is essential in recruitment.
+
+ScoutFight supports profile verification workflows that help users identify legitimate and verified professionals.
+
+Verification statuses may include:
+
+* Unverified
+* Pending Review
+* Verified
+* Rejected
+
+---
+
+## 🌐 Building a Global Combat Sports Network
+
+ScoutFight is designed to become a professional ecosystem for the entire combat sports industry.
+
+Rather than focusing on a single promotion or organization, the platform aims to support:
+
+* MMA
+* Wrestling
+* Boxing
+* Kickboxing
+* Muay Thai
+* BJJ
+* Grappling
+* Hybrid disciplines
+* Supporting professionals
+
+The long-term vision is to create a global network where talent, recruiters, organizations, and industry professionals can connect more effectively than ever before.
+
+---
+
+## 🚀 Vision
+
+ScoutFight aims to become the leading talent discovery and recruitment platform for combat sports.
+
+By combining athlete visibility, intelligent scouting tools, professional profiles, recruitment workflows, and industry-wide discovery, the platform helps create more opportunities for athletes while making recruitment faster and more transparent.
+
+### Discover. Evaluate. Sign.
