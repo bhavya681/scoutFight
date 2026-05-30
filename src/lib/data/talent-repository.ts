@@ -5,7 +5,7 @@ import type {
   NewsArticle,
   SportType,
 } from "@/types";
-import { fetchWikipediaSummary } from "./wikipedia";
+import { fetchWikipediaSummary, fetchWikipediaPageMetaBatch } from "./wikipedia";
 import { fetchYouTubeVideos } from "./youtube";
 import { fetchCombatSportsNews } from "./news-feed";
 import {
@@ -64,6 +64,40 @@ function mergeExternalStats(
     },
     dataSource: "merged",
   };
+}
+
+/** Wikipedia batch thumbs for wrestlers / other sports (no TheSportsDB roster on discover). */
+async function enrichDiscoverAvatars(
+  entries: AthleteDiscoveryEntry[],
+  summaries: TalentProfile[]
+): Promise<TalentProfile[]> {
+  const titles: string[] = [];
+  const indexByTitle = new Map<string, number[]>();
+
+  for (let i = 0; i < entries.length; i++) {
+    if (isUsableImageUrl(summaries[i].avatarUrl)) continue;
+    const title = entryWikipediaTitle(entries[i]);
+    if (!title) continue;
+    titles.push(title);
+    const list = indexByTitle.get(title) ?? [];
+    list.push(i);
+    indexByTitle.set(title, list);
+  }
+
+  if (titles.length === 0) return summaries;
+
+  const meta = await fetchWikipediaPageMetaBatch(titles);
+  if (meta.size === 0) return summaries;
+
+  const out = [...summaries];
+  for (const [title, indices] of indexByTitle) {
+    const thumb = meta.get(title)?.thumbnailUrl;
+    if (!thumb) continue;
+    for (const i of indices) {
+      out[i] = { ...out[i], avatarUrl: thumb, dataSource: "merged" };
+    }
+  }
+  return out;
 }
 
 function withDisplayMeta(
@@ -242,13 +276,15 @@ const getCachedAllTalentSummaries = unstable_cache(
         getAthleteDiscoveryIndex(),
         getDiscoveredOrganizations(),
       ]);
-      return entries.map((e, i) => withDisplayMeta(summaryFromEntry(e, i), orgs));
+      const summaries = entries.map((e, i) => summaryFromEntry(e, i));
+      const withPhotos = await enrichDiscoverAvatars(entries, summaries);
+      return withPhotos.map((p) => withDisplayMeta(p, orgs));
     } catch (e) {
       console.error("[ScoutFight] Failed to build talent summaries:", e);
       return [];
     }
   },
-  ["scoutfight-all-talent-summaries-v7"],
+  ["scoutfight-all-talent-summaries-v9"],
   { revalidate: 3600, tags: ["athletes"] }
 );
 
