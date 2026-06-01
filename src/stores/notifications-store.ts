@@ -10,6 +10,10 @@ export interface Notification {
   createdAt: string;
 }
 
+function countUnread(notifications: Notification[]) {
+  return notifications.filter((n) => !n.read).length;
+}
+
 interface NotificationsState {
   notifications: Notification[];
   unreadCount: number;
@@ -18,30 +22,9 @@ interface NotificationsState {
   addNotification: (n: Omit<Notification, "id" | "read" | "createdAt">) => void;
 }
 
-const INITIAL: Notification[] = [
-  {
-    id: "1",
-    type: "booking",
-    title: "New booking request",
-    body: "Apex Fight League sent a booking request for Apex Fight League 47.",
-    link: "/dashboard/bookings",
-    read: false,
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: "2",
-    type: "offer",
-    title: "Offer viewed",
-    body: "Marcus Steel Johnson viewed your offer.",
-    link: "/dashboard/offers",
-    read: false,
-    createdAt: new Date(Date.now() - 3600000).toISOString(),
-  },
-];
-
-export const useNotificationsStore = create<NotificationsState>((set, get) => ({
-  notifications: INITIAL,
-  unreadCount: INITIAL.filter((n) => !n.read).length,
+export const useNotificationsStore = create<NotificationsState>((set) => ({
+  notifications: [],
+  unreadCount: 0,
   markRead: (id) =>
     set((s) => {
       const notifications = s.notifications.map((n) =>
@@ -49,7 +32,7 @@ export const useNotificationsStore = create<NotificationsState>((set, get) => ({
       );
       return {
         notifications,
-        unreadCount: notifications.filter((n) => !n.read).length,
+        unreadCount: countUnread(notifications),
       };
     }),
   markAllRead: () =>
@@ -68,7 +51,7 @@ export const useNotificationsStore = create<NotificationsState>((set, get) => ({
       const notifications = [notification, ...s.notifications];
       return {
         notifications,
-        unreadCount: notifications.filter((x) => !x.read).length,
+        unreadCount: countUnread(notifications),
       };
     }),
 }));

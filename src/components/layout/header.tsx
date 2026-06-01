@@ -56,13 +56,16 @@ export function Header() {
           <Button
             variant="ghost"
             size="icon"
-            className="hidden md:flex h-9 w-9 sm:h-10 sm:w-10"
+            className={cn(
+              "hidden md:flex h-9 w-9 sm:h-10 sm:w-10",
+              talentAiOpen && "bg-pwr-red/15 text-pwr-red"
+            )}
             onClick={toggleTalentAi}
             title="Talent Research"
             aria-label="Talent Research"
             aria-pressed={talentAiOpen}
           >
-            <TalentAiIcon size="sm" active={talentAiOpen} />
+            <TalentAiIcon variant="nav" active={talentAiOpen} />
           </Button>
           <Button variant="ghost" size="icon" className="h-9 w-9 sm:h-10 sm:w-10" asChild>
             <Link href="/discover" aria-label="Search talent">
@@ -75,11 +78,11 @@ export function Header() {
             className="relative hidden sm:flex h-9 w-9 sm:h-10 sm:w-10"
             asChild
           >
-            <Link href="/dashboard" aria-label="Notifications">
+            <Link href="/dashboard/messages" aria-label="Messages">
               <Bell className="h-4 w-4" />
               {unreadCount > 0 && (
-                <span className="absolute -right-0.5 -top-0.5 h-4 w-4 rounded-full bg-pwr-red text-[10px] text-white flex items-center justify-center font-bold">
-                  {unreadCount}
+                <span className="absolute -right-0.5 -top-0.5 min-w-4 h-4 px-0.5 rounded-full bg-pwr-red text-[10px] text-white flex items-center justify-center font-bold tabular-nums">
+                  {unreadCount > 9 ? "9+" : unreadCount}
                 </span>
               )}
             </Link>
@@ -141,7 +144,7 @@ export function Header() {
                 setMobileMenuOpen(false);
               }}
             >
-              <TalentAiIcon size="sm" showAiBadge />
+              <TalentAiIcon variant="nav" active={talentAiOpen} />
               Talent Research
             </Button>
             <Button className="w-full min-h-[44px]" asChild onClick={() => setMobileMenuOpen(false)}>

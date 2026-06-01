@@ -7,6 +7,8 @@ interface BrandLogoProps {
   /** full = hero/marketing, compact = header, icon = shield only */
   variant?: "full" | "compact" | "icon";
   className?: string;
+  /** Set to false when already inside a parent link */
+  linked?: boolean;
   href?: string;
   priority?: boolean;
 }
@@ -20,6 +22,7 @@ const sizes = {
 export function BrandLogo({
   variant = "full",
   className,
+  linked = true,
   href = "/",
   priority = false,
 }: BrandLogoProps) {
@@ -50,7 +53,7 @@ export function BrandLogo({
     </>
   );
 
-  if (href) {
+  if (linked && href) {
     return (
       <Link
         href={href}

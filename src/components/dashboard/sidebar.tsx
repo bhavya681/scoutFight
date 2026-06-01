@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { TalentAiIcon } from "@/components/ai/talent-ai-icon";
+import { BrandLogo } from "@/components/brand/brand-logo";
 import { cn } from "@/lib/utils";
 import { DASHBOARD_LINKS } from "@/lib/constants";
 import {
@@ -26,7 +26,7 @@ export function DashboardSidebar({ role: defaultRole = "recruiter" }: { role?: D
   return (
     <aside className="hidden lg:flex w-64 flex-col border-r border-border bg-card/50 p-4 shrink-0">
       <Link href="/dashboard" className="flex items-center gap-2 mb-4 px-2">
-        <TalentAiIcon size="sm" showAiBadge />
+        <BrandLogo variant="icon" linked={false} className="h-8 w-8" />
         <span className="font-display font-bold uppercase text-sm tracking-wider">Dashboard</span>
       </Link>
 
