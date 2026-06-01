@@ -130,7 +130,6 @@ export function getWeightClassOptions(sportId?: string): string[] {
 
 export const NAV_LINKS = [
   { href: "/discover", label: "Discover" },
-  { href: "/athletes", label: "Athletes" },
   { href: "/professionals", label: "Professionals" },
   { href: "/organizations", label: "Promotions" },
   { href: "/compare", label: "Compare" },

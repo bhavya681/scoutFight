@@ -1,4 +1,4 @@
-import type { VideoItem } from "@/types";
+import type { VideoItem, SportType } from "@/types";
 
 interface RawSearchHit {
   videoId: string;
@@ -277,7 +277,7 @@ async function searchGoogleYouTube(
 
 function rawHitsToVideoItems(
   hits: RawSearchHit[],
-  meta: { talentName: string; talentSlug: string }
+  meta: { talentName: string; talentSlug: string; sport?: SportType }
 ): VideoItem[] {
   return hits.map((h) => ({
     id: h.videoId,
@@ -287,6 +287,7 @@ function rawHitsToVideoItems(
     talentName: meta.talentName,
     talentSlug: meta.talentSlug,
     talentType: "athlete" as const,
+    sport: meta.sport,
     duration: h.duration ?? "—",
     views: h.views ?? 0,
     watchUrl: `https://www.youtube.com/watch?v=${h.videoId}`,
@@ -330,7 +331,7 @@ function mergeSearchHits(sources: RawSearchHit[][], maxResults: number): RawSear
 
 export async function fetchYouTubeVideos(
   query: string,
-  meta: { talentName: string; talentSlug: string },
+  meta: { talentName: string; talentSlug: string; sport?: SportType },
   maxResults = 6
 ): Promise<VideoItem[]> {
   const [innertube, google, piped, invidious] = await Promise.all([

@@ -24,7 +24,7 @@ export function DashboardSidebar({ role: defaultRole = "recruiter" }: { role?: D
   const links = DASHBOARD_LINKS[role] ?? DASHBOARD_LINKS.recruiter;
 
   return (
-    <aside className="hidden lg:flex w-64 flex-col border-r border-white/10 bg-card/50 p-4 shrink-0">
+    <aside className="hidden lg:flex w-64 flex-col border-r border-border bg-card/50 p-4 shrink-0">
       <Link href="/dashboard" className="flex items-center gap-2 mb-4 px-2">
         <TalentAiIcon size="sm" showAiBadge />
         <span className="font-display font-bold uppercase text-sm tracking-wider">Dashboard</span>

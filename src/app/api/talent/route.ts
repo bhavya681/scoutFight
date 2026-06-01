@@ -13,10 +13,13 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ talent, source: "thesportsdb+wikipedia+youtube" });
   }
 
+  const genderParam = searchParams.get("gender");
   const talent = await searchTalent({
     query: searchParams.get("q") ?? undefined,
     sport: searchParams.get("sport") ?? undefined,
     weightClass: searchParams.get("weightClass") ?? undefined,
+    gender:
+      genderParam === "male" || genderParam === "female" ? genderParam : undefined,
     verification: searchParams.get("verification") ?? undefined,
     availableOnly: searchParams.get("availableOnly") === "true",
   });

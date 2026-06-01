@@ -1,170 +1,110 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import type { Metadata } from "next";
-import { UserAvatar } from "@/components/ui/user-avatar";
-import { CountryFlag } from "@/components/ui/country-flag";
+import { RankingsHero } from "@/components/rankings/rankings-hero";
 import { RankingsFilters } from "@/components/rankings/rankings-filters";
-import { getRankedTalent, getAllTalent } from "@/lib/data/talent-repository";
+import { RankingsToolbar } from "@/components/rankings/rankings-toolbar";
+import { RankingsTable } from "@/components/rankings/rankings-table";
+import { DiscoverPagination } from "@/components/discover/discover-pagination";
+import {
+  queryRankingsTalent,
+  RANKINGS_PAGE_SIZE,
+  type RankingsSearchParams,
+} from "@/lib/data/rankings-query";
+import { getRankedTalent } from "@/lib/data/talent-repository";
 import { getAthleteDiscoveryIndex } from "@/lib/data/athlete-discovery";
-import { SPORTS } from "@/lib/constants";
-import { formatRecord } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 
 export const metadata: Metadata = {
-  title: "Rankings",
-  description: "Live athlete rankings from ScoutFight discovery — filter by sport and weight class.",
+  title: "Athlete Rankings",
+  description:
+    "Live combat sports athlete rankings from Wikipedia, Wikidata, and TheSportsDB — filter by sport and ScoutScore.",
 };
 
 export const revalidate = 3600;
 
 interface PageProps {
-  searchParams: Promise<{
-    sport?: string;
-    weightClass?: string;
-  }>;
+  searchParams: Promise<RankingsSearchParams>;
 }
 
-async function RankingsTable({
-  searchParams,
-}: {
-  searchParams: Awaited<PageProps["searchParams"]>;
-}) {
-  const sport = searchParams.sport;
-  const weightClass = searchParams.weightClass;
-  const [ranked, all, discovery] = await Promise.all([
-    getRankedTalent({ sport, weightClass }),
-    getAllTalent(),
-    getAthleteDiscoveryIndex(),
-  ]);
+async function RankingsResults({ params }: { params: RankingsSearchParams }) {
+  const { talent, total } = await queryRankingsTalent(params);
+  const page = Math.max(1, parseInt(params.page ?? "1", 10) || 1);
+  const totalPages = Math.max(1, Math.ceil(total / RANKINGS_PAGE_SIZE));
+  const startRank = (page - 1) * RANKINGS_PAGE_SIZE + 1;
+  const hasFilters = Boolean(
+    params.q || params.sport || params.weightClass || params.minScore
+  );
 
-  const sportLabel = sport
-    ? SPORTS.find((s) => s.id === sport)?.label ?? sport
-    : "All sports";
-  const hasFilters = Boolean(sport || weightClass);
-
-  if (ranked.length === 0) {
+  if (total === 0) {
     return (
-      <div className="rounded-xl border border-border bg-card p-12 text-center space-y-4">
-        <p className="text-muted-foreground">
-          {hasFilters
-            ? "No athletes match this sport or weight class in the live directory."
-            : "No athletes loaded yet. Try again shortly."}
-        </p>
-        {hasFilters && (
-          <>
-            <p className="text-sm text-muted-foreground">
-              {discovery.sportCounts[sport as keyof typeof discovery.sportCounts] ?? 0}{" "}
-              {sportLabel} athletes indexed — {all.length} total.
-            </p>
-            <Button variant="outline" asChild>
+      <>
+        <RankingsToolbar count={0} />
+        <div className="rounded-xl border border-border bg-muted/50 p-12 text-center space-y-4">
+          <p className="text-muted-foreground">
+            {hasFilters
+              ? "No athletes match your search or filters."
+              : "No athletes loaded yet. Try again shortly."}
+          </p>
+          {hasFilters && (
+            <Button variant="outline" className="border-border" asChild>
               <Link href="/rankings">Clear filters</Link>
             </Button>
-          </>
-        )}
-      </div>
+          )}
+        </div>
+      </>
     );
   }
 
   return (
     <>
-      <p className="text-sm text-muted-foreground mb-4">
-        Showing {ranked.length} athlete{ranked.length === 1 ? "" : "s"}
-        {sport ? ` · ${sportLabel}` : ""}
-        {weightClass ? ` · ${weightClass}` : ""}
-        . Ordered by record, profile quality, and featured seed data (Wikipedia / TheSportsDB).
-      </p>
-      <div className="rounded-xl border border-border overflow-hidden bg-card">
-        <div className="hidden sm:grid sm:grid-cols-[3rem_3rem_1fr_6rem_5rem] gap-4 px-4 py-3 bg-muted/50 text-xs font-medium text-muted-foreground uppercase tracking-wide border-b border-border">
-          <span>#</span>
-          <span aria-hidden />
-          <span>Athlete</span>
-          <span>Record</span>
-          <span className="text-right">Sport</span>
-        </div>
-        <div className="divide-y divide-border">
-          {ranked.map((t, i) => (
-            <Link
-              key={t.slug}
-              href={`/athletes/${t.slug}`}
-              className="flex items-center gap-4 p-4 hover:bg-muted/50 transition-colors sm:grid sm:grid-cols-[3rem_3rem_1fr_6rem_5rem] sm:gap-4"
-            >
-              <span className="font-bold w-8 sm:w-auto text-center text-brand shrink-0">
-                {i + 1}
-              </span>
-              <UserAvatar
-                name={t.displayName}
-                src={t.avatarUrl}
-                size="sm"
-                shape="rounded"
-                className="border border-border shrink-0"
-              />
-              <div className="flex-1 min-w-0 sm:col-span-1">
-                <p className="font-medium truncate">{t.displayName}</p>
-                <p className="text-xs text-muted-foreground flex items-center gap-2 flex-wrap mt-0.5">
-                  {t.weightClass && <span>{t.weightClass}</span>}
-                  <CountryFlag
-                    nationality={t.nationality}
-                    countryCode={t.countryCode}
-                    size="xs"
-                    showLabel={!t.weightClass}
-                  />
-                  {t.promotion && (
-                    <span className="truncate hidden md:inline text-muted-foreground/80">
-                      · {t.promotion}
-                    </span>
-                  )}
-                </p>
-              </div>
-              <div className="shrink-0 text-sm font-mono tabular-nums sm:text-center">
-                {t.record ? (
-                  formatRecord(t.record.wins, t.record.losses, t.record.draws)
-                ) : (
-                  <span className="text-muted-foreground">—</span>
-                )}
-              </div>
-              <Badge
-                variant="sport"
-                className="shrink-0 uppercase text-[10px] sm:justify-self-end hidden sm:inline-flex"
-              >
-                {t.sport.replace(/_/g, " ")}
-              </Badge>
-            </Link>
-          ))}
-        </div>
-      </div>
+      <RankingsToolbar count={total} />
+      <RankingsTable talents={talent} startRank={startRank} />
+      <DiscoverPagination page={page} totalPages={totalPages} />
     </>
   );
 }
 
+async function FiltersWithCount({ params }: { params: RankingsSearchParams }) {
+  const { total } = await queryRankingsTalent(params);
+  return <RankingsFilters count={total} />;
+}
+
 export default async function RankingsPage({ searchParams }: PageProps) {
   const params = await searchParams;
+  const [allRanked, discovery] = await Promise.all([
+    getRankedTalent({}),
+    getAthleteDiscoveryIndex(),
+  ]);
+  const disciplineCount = Object.values(discovery.sportCounts).filter(
+    (n) => (n ?? 0) > 0
+  ).length;
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 pb-16">
-      <p className="section-label mb-2">Live directory</p>
-      <h1 className="text-3xl font-bold tracking-tight">Rankings</h1>
-      <p className="text-muted-foreground mt-2 mb-8 max-w-2xl">
-        Athletes ranked from live Wikipedia, Wikidata, and TheSportsDB data — updated hourly.
-        Filter by sport and weight class.
-      </p>
+    <div className="page-shell">
+      <RankingsHero
+        rankedCount={allRanked.length}
+        disciplineCount={disciplineCount || 6}
+      />
 
-      <Suspense fallback={<Skeleton className="h-10 w-full max-w-md rounded-lg mb-8" />}>
-        <RankingsFilters />
-      </Suspense>
+      <div className="page-container py-5 sm:py-8 md:py-10 pb-16 sm:pb-20">
+        <Suspense fallback={<Skeleton className="h-40 w-full rounded-2xl -mt-8" />}>
+          <FiltersWithCount params={params} />
+        </Suspense>
 
-      <Suspense
-        fallback={
-          <div className="rounded-xl border border-border overflow-hidden bg-card divide-y divide-border">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <Skeleton key={i} className="h-16 w-full rounded-none" />
-            ))}
-          </div>
-        }
-      >
-        <RankingsTable searchParams={params} />
-      </Suspense>
+        <Suspense
+          fallback={
+            <div className="rounded-xl border border-border overflow-hidden divide-y divide-white/5">
+              {Array.from({ length: 10 }).map((_, i) => (
+                <Skeleton key={i} className="h-16 w-full rounded-none" />
+              ))}
+            </div>
+          }
+        >
+          <RankingsResults params={params} />
+        </Suspense>
+      </div>
     </div>
   );
 }

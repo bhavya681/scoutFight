@@ -4,9 +4,9 @@ import { APP_NAME, APP_TAGLINE, FOOTER_LINKS } from "@/lib/constants";
 
 export function Footer() {
   return (
-    <footer className="border-t border-white/10 bg-muted/20 backdrop-blur-sm mt-auto">
-      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
+    <footer className="border-t border-border bg-muted/30 backdrop-blur-sm mt-auto">
+      <div className="page-container py-10 sm:py-12">
+        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-4">
           <div className="md:col-span-2">
             <BrandLogo variant="compact" className="mb-4 h-10" />
             <p className="text-xs text-pwr-red font-semibold uppercase tracking-[0.2em] mb-3">
@@ -47,7 +47,7 @@ export function Footer() {
             </ul>
           </div>
         </div>
-        <div className="mt-12 pt-8 border-t border-white/10 flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
+        <div className="mt-10 sm:mt-12 pt-8 border-t border-border flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 text-sm text-muted-foreground text-center sm:text-left">
           <p>© {new Date().getFullYear()} {APP_NAME}. All rights reserved.</p>
           <p>Combat sports · Every discipline · One marketplace</p>
         </div>

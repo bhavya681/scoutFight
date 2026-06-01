@@ -23,6 +23,7 @@ import {
   searchTheSportsDbFightingPlayers,
 } from "@/lib/integrations/the-sports-db";
 import { fetchWikipediaSearchTitle } from "@/lib/integrations/wikipedia-discovery";
+import { talentMatchesGender } from "@/lib/utils/gender-match";
 import { fetchMmaFighterStats } from "@/lib/integrations/mma-api";
 import { fetchCommonsImageUrl } from "@/lib/integrations/wikimedia-commons";
 import type { ExternalFighterStats } from "@/lib/integrations/types";
@@ -349,7 +350,8 @@ export async function searchTalent(filters: {
   let list = await getAllTalent();
   if (filters.sport) list = list.filter((t) => t.sport === filters.sport);
   if (filters.gender === "male" || filters.gender === "female") {
-    list = list.filter((t) => t.gender === filters.gender);
+    const g = filters.gender as "male" | "female";
+    list = list.filter((t) => talentMatchesGender(t, g));
   }
   if (filters.weightClass) {
     const wc = filters.weightClass.toLowerCase();
@@ -417,7 +419,7 @@ export async function getVideosForTalent(slug: string): Promise<VideoItem[]> {
   if (!talent) return [];
 
   const name = talent.ringName ?? talent.displayName;
-  const meta = { talentName: name, talentSlug: slug };
+  const meta = { talentName: name, talentSlug: slug, sport: talent.sport };
   const queries = [
     `${name} ${talent.sport} highlights`,
     `${name} ${talent.sport} fight`,
@@ -431,13 +433,14 @@ export async function getVideosForTalent(slug: string): Promise<VideoItem[]> {
   return [];
 }
 
-export async function getAllVideos(limit = 24): Promise<VideoItem[]> {
-  const talent = (await getAllTalent()).slice(0, 8);
+export async function getAllVideos(limit = 48): Promise<VideoItem[]> {
+  const talent = (await getAllTalent()).slice(0, 12);
   const batches = await Promise.all(
     talent.map((t) =>
       fetchYouTubeVideos(`${t.displayName} ${t.sport} highlights`, {
         talentName: t.displayName,
         talentSlug: t.slug,
+        sport: t.sport,
       })
     )
   );

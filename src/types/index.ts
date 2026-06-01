@@ -253,6 +253,7 @@ export interface VideoItem {
   talentName: string;
   talentSlug: string;
   talentType: "athlete" | "professional";
+  sport?: SportType;
   duration: string;
   views: number;
   watchUrl?: string;

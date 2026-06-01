@@ -11,7 +11,7 @@ export function FighterPlaceholder({
   return (
     <div
       className={cn(
-        "relative flex h-full w-full items-center justify-center overflow-hidden bg-gradient-to-b from-zinc-700 via-zinc-800 to-zinc-950",
+        "relative flex h-full w-full items-center justify-center overflow-hidden bg-gradient-to-b from-zinc-700 via-zinc-800 to-background",
         className
       )}
       aria-hidden
@@ -19,7 +19,7 @@ export function FighterPlaceholder({
       <div className="absolute inset-0 opacity-[0.07] bg-[radial-gradient(circle_at_50%_30%,#e31b23_0%,transparent_55%)]" />
       <svg
         viewBox="0 0 120 120"
-        className="relative h-[58%] w-[58%] text-zinc-500/90"
+        className="relative h-[58%] w-[58%] text-muted-foreground/90"
         fill="currentColor"
       >
         {variant === "fighter" ? (
@@ -36,7 +36,7 @@ export function FighterPlaceholder({
         )}
       </svg>
       <div
-        className="pointer-events-none absolute inset-3 rounded-lg border border-white/5"
+        className="pointer-events-none absolute inset-3 rounded-lg border border-border"
         style={{
           background:
             "repeating-linear-gradient(135deg, transparent, transparent 8px, rgba(255,255,255,0.02) 8px, rgba(255,255,255,0.02) 9px)",

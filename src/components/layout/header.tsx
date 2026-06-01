@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Bell, LayoutDashboard, Menu, Moon, Search, Sun, X } from "lucide-react";
@@ -11,6 +12,7 @@ import { NAV_LINKS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { useUIStore } from "@/stores/ui-store";
 import { useNotificationsStore } from "@/stores/notifications-store";
+import { useBodyScrollLock } from "@/lib/hooks/use-body-scroll-lock";
 
 export function Header() {
   const pathname = usePathname();
@@ -19,21 +21,30 @@ export function Header() {
     useUIStore();
   const unreadCount = useNotificationsStore((s) => s.unreadCount);
 
-  return (
-    <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
-        <BrandLogo variant="compact" priority className="transition-opacity hover:opacity-90" />
+  useBodyScrollLock(mobileMenuOpen);
 
-        <nav className="hidden lg:flex items-center gap-1">
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [pathname, setMobileMenuOpen]);
+
+  const isActive = (href: string) =>
+    pathname === href || pathname.startsWith(href + "/");
+
+  return (
+    <header className="sticky top-0 z-50 border-b border-border bg-background/90 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80">
+      <div className="page-container flex h-14 sm:h-16 items-center justify-between gap-2 sm:gap-4">
+        <BrandLogo variant="compact" priority className="h-8 sm:h-9 w-auto transition-opacity hover:opacity-90" />
+
+        <nav className="hidden xl:flex items-center gap-0.5 min-w-0" aria-label="Main">
           {NAV_LINKS.map((link) => (
             <Link
               key={link.href}
               href={link.href}
               className={cn(
-                "px-3 py-2 text-sm font-medium rounded-md transition-all",
-                pathname === link.href || pathname.startsWith(link.href + "/")
+                "px-2.5 xl:px-3 py-2 text-sm font-medium rounded-md transition-all whitespace-nowrap",
+                isActive(link.href)
                   ? "bg-pwr-red/15 text-pwr-red"
-                  : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
               )}
             >
               {link.label}
@@ -41,23 +52,30 @@ export function Header() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
           <Button
             variant="ghost"
             size="icon"
-            className="hidden md:flex"
+            className="hidden md:flex h-9 w-9 sm:h-10 sm:w-10"
             onClick={toggleTalentAi}
-            title="Talent Research — matchmaker & scout"
+            title="Talent Research"
             aria-label="Talent Research"
             aria-pressed={talentAiOpen}
           >
             <TalentAiIcon size="sm" active={talentAiOpen} />
           </Button>
-          <Button variant="ghost" size="icon" asChild className="hidden sm:flex">
-            <Link href="/discover"><Search className="h-4 w-4" /></Link>
+          <Button variant="ghost" size="icon" className="h-9 w-9 sm:h-10 sm:w-10" asChild>
+            <Link href="/discover" aria-label="Search talent">
+              <Search className="h-4 w-4" />
+            </Link>
           </Button>
-          <Button variant="ghost" size="icon" asChild className="relative hidden sm:flex">
-            <Link href="/dashboard">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="relative hidden sm:flex h-9 w-9 sm:h-10 sm:w-10"
+            asChild
+          >
+            <Link href="/dashboard" aria-label="Notifications">
               <Bell className="h-4 w-4" />
               {unreadCount > 0 && (
                 <span className="absolute -right-0.5 -top-0.5 h-4 w-4 rounded-full bg-pwr-red text-[10px] text-white flex items-center justify-center font-bold">
@@ -69,54 +87,67 @@ export function Header() {
           <Button
             variant="ghost"
             size="icon"
+            className="h-9 w-9 sm:h-10 sm:w-10"
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            aria-label="Toggle theme"
           >
             <Sun className="h-4 w-4 dark:hidden" />
             <Moon className="h-4 w-4 hidden dark:block" />
           </Button>
-          <Button size="sm" className="hidden sm:flex ml-1" asChild>
+          <Button size="sm" className="hidden md:flex ml-0.5 h-9" asChild>
             <Link href="/dashboard?role=recruiter">
               <LayoutDashboard className="h-4 w-4" />
-              Dashboard
+              <span className="hidden lg:inline">Dashboard</span>
             </Link>
           </Button>
           <Button
             variant="ghost"
             size="icon"
-            className="lg:hidden"
+            className="xl:hidden h-9 w-9 sm:h-10 sm:w-10"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={mobileMenuOpen}
           >
-            {mobileMenuOpen ? <X /> : <Menu />}
+            {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
         </div>
       </div>
 
       {mobileMenuOpen && (
-        <div className="lg:hidden border-t border-border px-4 py-4 space-y-1 bg-background/95 backdrop-blur-xl">
-          {NAV_LINKS.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              onClick={() => setMobileMenuOpen(false)}
-              className={cn(
-                "block px-3 py-2.5 text-sm font-medium rounded-md",
-                pathname === link.href ? "bg-pwr-red/15 text-pwr-red" : "hover:bg-white/5"
-              )}
+        <div className="xl:hidden border-t border-border bg-background/98 backdrop-blur-xl max-h-[min(70vh,520px)] overflow-y-auto scroll-touch safe-bottom">
+          <nav className="page-container py-4 space-y-0.5" aria-label="Mobile">
+            {NAV_LINKS.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={() => setMobileMenuOpen(false)}
+                className={cn(
+                  "block px-3 py-3 text-sm font-medium rounded-lg min-h-[44px] flex items-center",
+                  isActive(link.href)
+                    ? "bg-pwr-red/15 text-pwr-red"
+                    : "hover:bg-muted"
+                )}
+              >
+                {link.label}
+              </Link>
+            ))}
+          </nav>
+          <div className="page-container pb-4 space-y-2 border-t border-border/60 pt-4">
+            <Button
+              variant="outline"
+              className="w-full min-h-[44px] gap-2 justify-start"
+              onClick={() => {
+                openTalentAi("matchmaker");
+                setMobileMenuOpen(false);
+              }}
             >
-              {link.label}
-            </Link>
-          ))}
-          <Button
-            variant="outline"
-            className="w-full mt-3 gap-2 justify-start"
-            onClick={() => openTalentAi("matchmaker")}
-          >
-            <TalentAiIcon size="sm" showAiBadge />
-            Talent Research
-          </Button>
-          <Button className="w-full mt-2" asChild onClick={() => setMobileMenuOpen(false)}>
-            <Link href="/dashboard?role=recruiter">Open dashboard</Link>
-          </Button>
+              <TalentAiIcon size="sm" showAiBadge />
+              Talent Research
+            </Button>
+            <Button className="w-full min-h-[44px]" asChild onClick={() => setMobileMenuOpen(false)}>
+              <Link href="/dashboard?role=recruiter">Open dashboard</Link>
+            </Button>
+          </div>
         </div>
       )}
     </header>

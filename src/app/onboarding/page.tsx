@@ -45,7 +45,7 @@ export default function OnboardingPage() {
               className={`w-full text-left p-4 rounded-xl border transition-all ${
                 role === r.id
                   ? "border-pwr-red bg-pwr-red/10"
-                  : "border-white/10 hover:border-white/20"
+                  : "border-border hover:border-border"
               }`}
             >
               <p className="font-semibold">{r.label}</p>

@@ -3,6 +3,7 @@ import { getRankedTalent, searchTalent } from "@/lib/data/talent-repository";
 import { formatRecord } from "@/lib/utils";
 import { isUsableImageUrl } from "@/lib/utils/avatar-fallback";
 import { getCountryLabel, talentMatchesCountry } from "@/lib/utils/region-match";
+import { talentMatchesGender } from "@/lib/utils/gender-match";
 
 export interface MatchmakerCriteria {
   sport?: string;
@@ -10,18 +11,6 @@ export interface MatchmakerCriteria {
   country?: string;
   gender?: "male" | "female";
   brief: string;
-}
-
-function talentMatchesGender(
-  t: TalentProfile,
-  gender?: "male" | "female"
-): boolean {
-  if (!gender) return true;
-  if (t.gender === gender) return true;
-  if (!t.gender && gender === "female" && /\b(women|female)\b/i.test(t.bio)) {
-    return true;
-  }
-  return false;
 }
 
 function genderLabel(gender?: "male" | "female"): string {

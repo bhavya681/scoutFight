@@ -47,8 +47,8 @@ export function TalentAiIcon({
         "relative inline-flex shrink-0 items-center justify-center",
         s.box,
         s.radius,
-        "bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-950",
-        "border border-white/10 shadow-sm",
+        "bg-gradient-to-br from-card via-zinc-800 to-background",
+        "border border-border shadow-sm",
         "ring-1 ring-inset ring-white/5",
         active && "ring-2 ring-pwr-red/50 border-pwr-red/30 shadow-md shadow-pwr-red/10",
         className

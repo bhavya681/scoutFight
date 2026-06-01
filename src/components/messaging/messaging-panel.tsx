@@ -36,7 +36,7 @@ export function MessagingPanel() {
 
   return (
     <Card className="flex flex-1 min-h-[400px] overflow-hidden">
-      <div className="w-full sm:w-72 border-r border-white/10 flex flex-col">
+      <div className="w-full sm:w-72 border-r border-border flex flex-col">
         {CONVERSATIONS.map((c) => (
           <button
             key={c.id}
@@ -73,7 +73,7 @@ export function MessagingPanel() {
             </div>
           ))}
         </div>
-        <div className="p-4 border-t border-white/10 flex gap-2">
+        <div className="p-4 border-t border-border flex gap-2">
           <Input
             placeholder="Type a message..."
             value={input}

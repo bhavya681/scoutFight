@@ -11,9 +11,9 @@ const buttonVariants = cva(
         default:
           "bg-pwr-red text-white shadow-lg shadow-pwr-red/25 hover:bg-pwr-red-hover hover:shadow-pwr-red/35",
         secondary:
-          "bg-white/10 text-foreground backdrop-blur-sm border border-white/10 hover:bg-white/15",
+          "bg-white/10 text-foreground backdrop-blur-sm border border-border hover:bg-white/15",
         outline:
-          "border border-white/20 bg-transparent hover:bg-white/5",
+          "border border-border bg-transparent hover:bg-white/5",
         ghost: "hover:bg-white/10",
         link: "text-pwr-red underline-offset-4 hover:underline",
       },

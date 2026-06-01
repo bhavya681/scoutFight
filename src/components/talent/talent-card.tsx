@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { UserAvatar } from "@/components/ui/user-avatar";
-import { GitCompare, Heart, Shield, TrendingUp } from "lucide-react";
+import { Heart, Shield, TrendingUp } from "lucide-react";
 import { CountryFlag } from "@/components/ui/country-flag";
 import { PromotionMark } from "@/components/talent/promotion-mark";
 import { Badge } from "@/components/ui/badge";
@@ -12,7 +12,10 @@ import { Card } from "@/components/ui/card";
 import type { TalentProfile } from "@/types";
 import { formatRecord, formatCurrency } from "@/lib/utils";
 import { useFavoritesStore } from "@/stores/favorites-store";
-import { useCompareStore } from "@/stores/compare-store";
+import {
+  CompareAddButton,
+  compareItemFromTalent,
+} from "@/components/compare/compare-add-button";
 import { AVAILABILITY_STATUS } from "@/lib/constants";
 
 interface TalentCardProps {
@@ -23,9 +26,7 @@ interface TalentCardProps {
 
 export function TalentCard({ talent, index = 0, showMarketValue }: TalentCardProps) {
   const { toggleAthlete, isAthleteFavorite } = useFavoritesStore();
-  const { add, has, items } = useCompareStore();
   const favorited = isAthleteFavorite(talent.id);
-  const inCompare = has(talent.id);
   const availLabel = AVAILABILITY_STATUS.find((a) => a.id === talent.availability)?.label;
 
   return (
@@ -61,7 +62,7 @@ export function TalentCard({ talent, index = 0, showMarketValue }: TalentCardPro
                 className="mb-2"
               />
             )}
-            <h3 className="font-display text-lg font-bold text-white uppercase tracking-wide">
+            <h3 className="font-display text-lg font-bold text-foreground uppercase tracking-wide">
               {talent.displayName}
             </h3>
             {talent.record && (
@@ -113,24 +114,11 @@ export function TalentCard({ talent, index = 0, showMarketValue }: TalentCardPro
             >
               <Heart className={`h-4 w-4 ${favorited ? "fill-pwr-red text-pwr-red" : ""}`} />
             </Button>
-            <Button
+            <CompareAddButton
+              item={compareItemFromTalent(talent)}
               variant="ghost"
               size="icon"
-              disabled={inCompare || items.length >= 4}
-              onClick={() =>
-                add({
-                  id: talent.id,
-                  slug: talent.slug,
-                  displayName: talent.displayName,
-                  avatarUrl: talent.avatarUrl,
-                  type: "athlete",
-                  sport: talent.sport,
-                })
-              }
-              aria-label="Compare"
-            >
-              <GitCompare className={`h-4 w-4 ${inCompare ? "text-pwr-red" : ""}`} />
-            </Button>
+            />
           </div>
         </div>
       </Card>

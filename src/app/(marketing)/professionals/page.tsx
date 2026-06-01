@@ -1,58 +1,91 @@
+import { Suspense } from "react";
+import type { Metadata } from "next";
 import Link from "next/link";
-import { UserAvatar } from "@/components/ui/user-avatar";
-import { CountryFlag } from "@/components/ui/country-flag";
+import { ProfessionalsHero } from "@/components/professionals/professionals-hero";
+import { ProfessionalsFilters } from "@/components/professionals/professionals-filters";
+import { ProfessionalCard } from "@/components/professionals/professional-card";
+import { DiscoverPagination } from "@/components/discover/discover-pagination";
+import {
+  queryProfessionals,
+  countUniqueCountries,
+  PROFESSIONALS_PAGE_SIZE,
+  type ProfessionalsSearchParams,
+} from "@/lib/data/professionals-query";
 import { getAllProfessionals } from "@/lib/data/professional-repository";
-import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
-import { TALENT_CATEGORIES } from "@/lib/constants";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
+
+export const metadata: Metadata = {
+  title: "Industry Professionals",
+  description:
+    "Referees, announcers, commentators, coaches, managers, and agents powering combat sports worldwide.",
+};
 
 export const revalidate = 3600;
 
-export default async function ProfessionalsPage() {
-  const professionals = await getAllProfessionals();
+interface PageProps {
+  searchParams: Promise<ProfessionalsSearchParams>;
+}
+
+async function ProfessionalsGrid({ params }: { params: ProfessionalsSearchParams }) {
+  const { professionals, total } = await queryProfessionals(params);
+  const page = Math.max(1, parseInt(params.page ?? "1", 10) || 1);
+  const totalPages = Math.max(1, Math.ceil(total / PROFESSIONALS_PAGE_SIZE));
+  const startIndex = (page - 1) * PROFESSIONALS_PAGE_SIZE;
+
+  if (total === 0) {
+    return (
+      <div className="rounded-xl border border-border bg-muted/50 py-16 text-center">
+        <p className="text-muted-foreground">No professionals match your search.</p>
+        <Button variant="outline" className="mt-4 border-border" asChild>
+          <Link href="/professionals">Clear filters</Link>
+        </Button>
+      </div>
+    );
+  }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 pb-20">
-      <p className="section-label mb-2">Industry professionals</p>
-      <h1 className="section-title text-3xl sm:text-4xl mb-3">Combat sports professionals</h1>
-      <p className="text-muted-foreground max-w-2xl mb-10">
-        Referees, announcers, commentators, coaches, and managers — discovered from Wikipedia and Wikidata APIs.
-      </p>
-
-      <div className="flex flex-wrap gap-2 mb-10">
-        {TALENT_CATEGORIES.professionals.map((p) => (
-          <Badge key={p.id} variant="outline">
-            {p.label}
-          </Badge>
+    <>
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+        {professionals.map((pro, i) => (
+          <ProfessionalCard key={pro.id} pro={pro} index={startIndex + i} />
         ))}
       </div>
+      <DiscoverPagination page={page} totalPages={totalPages} />
+    </>
+  );
+}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {professionals.map((pro) => (
-          <Link key={pro.id} href={`/professionals/${pro.slug}`}>
-            <Card className="p-5 h-full hover:border-pwr-red/40 transition-all flex gap-4">
-              <UserAvatar
-                name={pro.displayName}
-                src={pro.avatarUrl}
-                size="md"
-                shape="rounded"
-                placeholderVariant="official"
-              />
-              <div className="min-w-0">
-                <h2 className="font-semibold truncate">{pro.displayName}</h2>
-                <Badge variant="secondary" className="mt-1 capitalize">{pro.role}</Badge>
-                <p className="text-xs text-muted-foreground mt-2 line-clamp-2">{pro.bio}</p>
-                <CountryFlag
-                  nationality={pro.nationality}
-                  countryCode={pro.countryCode}
-                  size="xs"
-                  showLabel
-                  className="text-xs text-muted-foreground mt-2"
-                />
-              </div>
-            </Card>
-          </Link>
-        ))}
+async function FiltersWithCount({ params }: { params: ProfessionalsSearchParams }) {
+  const { total } = await queryProfessionals(params);
+  return <ProfessionalsFilters count={total} />;
+}
+
+export default async function ProfessionalsPage({ searchParams }: PageProps) {
+  const params = await searchParams;
+  const all = await getAllProfessionals();
+  const countriesCount = Math.max(countUniqueCountries(all), 12);
+
+  return (
+    <div className="page-shell">
+      <ProfessionalsHero totalPros={all.length} countriesCount={countriesCount} />
+
+      <div className="page-container py-5 sm:py-8 md:py-10 pb-16 sm:pb-20">
+        <Suspense fallback={<Skeleton className="h-40 w-full rounded-2xl -mt-8" />}>
+          <FiltersWithCount params={params} />
+        </Suspense>
+
+        <Suspense
+          fallback={
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <Skeleton key={i} className="h-64 rounded-xl" />
+              ))}
+            </div>
+          }
+        >
+          <ProfessionalsGrid params={params} />
+        </Suspense>
       </div>
     </div>
   );

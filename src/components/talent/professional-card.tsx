@@ -48,7 +48,7 @@ export function ProfessionalCard({ professional, index = 0 }: ProfessionalCardPr
               </Badge>
             )}
             <div className="absolute bottom-0 p-4">
-              <h3 className="font-display font-bold text-white uppercase">
+              <h3 className="font-display font-bold text-foreground uppercase">
                 {professional.displayName}
               </h3>
               <p className="text-sm text-white/80">

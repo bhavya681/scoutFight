@@ -28,7 +28,7 @@ export function TalentAiPanel() {
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 28, stiffness: 320 }}
-            className="fixed right-0 top-0 z-50 flex h-full w-full max-w-md flex-col border-l border-border bg-background shadow-2xl"
+            className="fixed inset-y-0 right-0 z-[60] flex h-full w-full max-w-full sm:max-w-md flex-col border-l border-border bg-background shadow-2xl"
           >
             <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3.5">
               <div className="flex items-center gap-3 min-w-0">

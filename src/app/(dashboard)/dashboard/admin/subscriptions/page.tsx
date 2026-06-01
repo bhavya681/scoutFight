@@ -18,7 +18,7 @@ export default function SubscriptionsPage() {
       <Card className="overflow-hidden">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-white/10 text-left text-muted-foreground">
+            <tr className="border-b border-border text-left text-muted-foreground">
               <th className="p-4">Account</th>
               <th className="p-4">Plan</th>
               <th className="p-4">MRR</th>
@@ -27,7 +27,7 @@ export default function SubscriptionsPage() {
           </thead>
           <tbody>
             {SUBS.map((s) => (
-              <tr key={s.user} className="border-b border-white/10">
+              <tr key={s.user} className="border-b border-border">
                 <td className="p-4 font-medium">{s.user}</td>
                 <td className="p-4">
                   <Badge variant="secondary">{s.plan}</Badge>

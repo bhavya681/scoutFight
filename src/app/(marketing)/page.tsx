@@ -10,6 +10,7 @@ import {
   getAllTalent,
   getAllVideos,
   getNewsArticles,
+  getMvpRosterStats,
 } from "@/lib/data/talent-repository";
 import { getAllOrganizations } from "@/lib/data/organization-repository";
 import { OrgLogo } from "@/components/organizations/org-logo";
@@ -18,11 +19,12 @@ import { SPORTS } from "@/lib/constants";
 export const revalidate = 3600;
 
 export default async function HomePage() {
-  const [talent, videos, news, orgs] = await Promise.all([
+  const [talent, videos, news, orgs, roster] = await Promise.all([
     getAllTalent(),
     getAllVideos(6),
     getNewsArticles(),
     getAllOrganizations(),
+    getMvpRosterStats(),
   ]);
 
   const featured = talent.filter((t) => t.featured).slice(0, 3);
@@ -31,7 +33,7 @@ export default async function HomePage() {
     <div className="hero-gradient">
       <HomeHero />
 
-      <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
+      <section className="page-container py-10 sm:py-14">
         <p className="section-label mb-4">Global coverage</p>
         <div className="flex flex-wrap gap-2">
           {SPORTS.map((s) => (
@@ -42,15 +44,15 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8 border-t border-border">
-        <div className="flex justify-between items-end mb-10">
+      <section className="page-container py-10 sm:py-14 border-t border-border">
+        <div className="section-head mb-8 sm:mb-10">
           <div>
             <p className="section-label mb-2">Talent roster</p>
-            <h2 className="section-title">Featured athletes</h2>
+            <h2 className="section-title text-2xl sm:text-[1.75rem]">Featured athletes</h2>
             <p className="text-sm text-muted-foreground mt-2">Live Wikipedia profiles & records</p>
           </div>
-          <Button variant="outline" size="sm" asChild>
-            <Link href="/athletes">View all</Link>
+          <Button variant="outline" size="sm" className="w-full sm:w-auto shrink-0" asChild>
+            <Link href="/discover">View all</Link>
           </Button>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -60,13 +62,13 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8 border-t border-border">
+      <section className="page-container py-10 sm:py-14 border-t border-border">
         <p className="section-label mb-2">Video intel</p>
-        <div className="flex items-center gap-2 mb-10">
-          <Video className="h-5 w-5 text-pwr-red" />
-          <h2 className="section-title">YouTube highlights</h2>
+        <div className="flex items-center gap-2 mb-6 sm:mb-10">
+          <Video className="h-5 w-5 text-pwr-red shrink-0" />
+          <h2 className="section-title text-2xl sm:text-[1.75rem]">YouTube highlights</h2>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {videos.slice(0, 3).map((v) => (
             <YouTubePlayer key={v.id} video={v} compact />
           ))}
@@ -76,10 +78,10 @@ export default async function HomePage() {
         </Button>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8 border-t border-border">
+      <section className="page-container py-10 sm:py-14 border-t border-border">
         <p className="section-label mb-2">Organizations</p>
-        <h2 className="section-title mb-10">Major promotions</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <h2 className="section-title text-2xl sm:text-[1.75rem] mb-6 sm:mb-10">Major promotions</h2>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
           {orgs.map((org) => (
             <Link key={org.id} href={`/organizations/${org.slug}`}>
               <Card className="p-5 hover:border-pwr-red/40 hover:shadow-lg hover:shadow-pwr-red/5 transition-all h-full flex flex-col items-center text-center group">
@@ -92,10 +94,10 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8 border-t border-border">
+      <section className="page-container py-10 sm:py-14 border-t border-border">
         <p className="section-label mb-2">Industry news</p>
-        <h2 className="section-title mb-10">Latest headlines</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <h2 className="section-title text-2xl sm:text-[1.75rem] mb-6 sm:mb-10">Latest headlines</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           {news.slice(0, 3).map((article) => (
             <Card key={article.id} className="p-4">
               <h3 className="font-medium text-sm line-clamp-2">{article.title}</h3>
@@ -115,8 +117,8 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
-        <Card className="relative overflow-hidden p-12 text-center border-pwr-red/25">
+      <section className="page-container py-12 sm:py-20">
+        <Card className="relative overflow-hidden p-6 sm:p-12 text-center border-pwr-red/25">
           <div className="absolute inset-0 bg-gradient-to-br from-pwr-red/10 via-transparent to-pwr-accent/10 pointer-events-none" />
           <div className="relative">
             <GitCompare className="h-10 w-10 text-pwr-gold mx-auto mb-5" />

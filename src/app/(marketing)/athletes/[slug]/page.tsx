@@ -70,9 +70,9 @@ export default async function AthleteProfilePage({ params }: PageProps) {
         )}
       </div>
 
-      <div className="mx-auto max-w-7xl px-4 -mt-16 relative z-10 sm:px-6 lg:px-8 pb-16">
-        <div className="flex flex-col lg:flex-row gap-8">
-          <div className="flex gap-5 items-end">
+      <div className="page-container -mt-12 sm:-mt-16 relative z-10 pb-12 sm:pb-16">
+        <div className="flex flex-col gap-6 lg:flex-row lg:gap-8">
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-5 sm:items-end">
             <UserAvatar
               name={talent.ringName ?? talent.displayName}
               src={talent.avatarUrl}
@@ -117,19 +117,21 @@ export default async function AthleteProfilePage({ params }: PageProps) {
               </p>
             </div>
           </div>
-          <div className="lg:ml-auto flex gap-2 shrink-0">
+          <div className="flex flex-wrap gap-2 lg:ml-auto shrink-0 w-full sm:w-auto">
             <FavoriteButton athleteId={talent.id} />
             <CompareToggle talent={talent} />
-            <BookingCTA athleteSlug={talent.slug} athleteName={talent.displayName} />
+            <div className="flex-1 sm:flex-none min-w-[140px]">
+              <BookingCTA athleteSlug={talent.slug} athleteName={talent.displayName} />
+            </div>
           </div>
         </div>
 
         <div className="mt-10 grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-6">
             <Tabs defaultValue="overview">
-              <TabsList>
-                <TabsTrigger value="overview">Overview</TabsTrigger>
-                <TabsTrigger value="videos">Videos ({videos.length})</TabsTrigger>
+              <TabsList className="w-full flex overflow-x-auto scroll-touch justify-start h-auto p-1 gap-1">
+                <TabsTrigger value="overview" className="shrink-0">Overview</TabsTrigger>
+                <TabsTrigger value="videos" className="shrink-0">Videos ({videos.length})</TabsTrigger>
               </TabsList>
               <TabsContent value="overview" className="mt-4">
                 <Card className="p-6">
