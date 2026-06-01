@@ -1,4 +1,4 @@
-import { Sparkles } from "lucide-react";
+import { BotMessageSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const PANEL_SIZES = {
@@ -17,7 +17,7 @@ type TalentAiIconProps = {
   showAiBadge?: boolean;
 };
 
-/** Talent Research mark — Sparkles (standard AI affordance) in nav; soft branded tile in panels */
+/** Talent Research mark — BotMessageSquare in nav; soft branded tile in panels */
 export function TalentAiIcon({
   className,
   variant = "panel",
@@ -26,7 +26,7 @@ export function TalentAiIcon({
 }: TalentAiIconProps) {
   if (variant === "nav") {
     return (
-      <Sparkles
+      <BotMessageSquare
         className={cn(
           "h-4 w-4 shrink-0 transition-colors",
           active ? "text-pwr-red" : "text-foreground",
@@ -52,7 +52,7 @@ export function TalentAiIcon({
       )}
       aria-hidden
     >
-      <Sparkles className={cn(s.icon)} strokeWidth={1.75} />
+      <BotMessageSquare className={cn(s.icon)} strokeWidth={1.75} />
     </span>
   );
 }

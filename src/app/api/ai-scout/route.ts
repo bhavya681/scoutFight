@@ -3,7 +3,9 @@ import { z } from "zod";
 import { openai, SCOUT_SYSTEM_PROMPT } from "@/lib/openai";
 import {
   findScoutMatches,
+  formatScoutIntro,
   formatScoutReply,
+  getScoutDiscoverUrl,
   rosterSummaryForScout,
 } from "@/lib/ai-scout";
 
@@ -55,19 +57,23 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  const reply = formatScoutReply(
-    parsed.data.message,
-    query,
-    picks,
-    poolSize,
-    aiNote
-  );
+  const discoverUrl = getScoutDiscoverUrl(query);
+
+  const reply =
+    picks.length > 0
+      ? [
+          formatScoutIntro(query, picks, poolSize),
+          aiNote ? `\n\nAI analysis:\n\n${aiNote}` : "",
+        ].join("")
+      : formatScoutReply(parsed.data.message, query, picks, poolSize, aiNote);
 
   return NextResponse.json({
     reply,
+    analysis: aiNote,
     source,
     matches: picks,
     poolSize,
+    discoverUrl,
     filters: query,
   });
 }

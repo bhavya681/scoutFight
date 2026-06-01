@@ -236,7 +236,7 @@ function describeFilters(q: ScoutQuery): string {
   return parts.length ? parts.join(" · ") : "all sports";
 }
 
-function discoverUrl(q: ScoutQuery): string {
+export function getScoutDiscoverUrl(q: ScoutQuery): string {
   const params = new URLSearchParams();
   if (q.sports.length === 1) params.set("sport", q.sports[0]);
   if (q.gender) params.set("gender", q.gender);
@@ -244,6 +244,19 @@ function discoverUrl(q: ScoutQuery): string {
   if (q.regionTerms[0]) params.set("q", q.regionTerms[0]);
   const qs = params.toString();
   return qs ? `/discover?${qs}` : "/discover";
+}
+
+/** Short assistant text when structured result cards are shown in the UI */
+export function formatScoutIntro(
+  query: ScoutQuery,
+  picks: ScoutPick[],
+  poolSize: number
+): string {
+  const filters = describeFilters(query);
+  if (picks.length === 0) {
+    return `No strong matches for ${filters} in the live directory (${poolSize} athletes searched). Try broader terms or open Discover.`;
+  }
+  return `Found ${picks.length} match${picks.length === 1 ? "" : "es"} for ${filters} (${poolSize} in pool). Tap a profile below to view full stats.`;
 }
 
 export function formatScoutReply(
@@ -283,7 +296,7 @@ export function formatScoutReply(
       "- Many wrestlers come from Wikipedia without country or gender tags yet.",
       "- MMA photos often come from UFC rosters; India / regional talent may be under-represented in the seed.",
       "",
-      `**Next step:** Browse **[Discover](${discoverUrl(query)})** and widen sport or region filters.`,
+      `**Next step:** Browse **[Discover](${getScoutDiscoverUrl(query)})** and widen sport or region filters.`,
       "",
       "_Powered by live roster search (free). Optional `OPENAI_API_KEY` adds GPT narrative only._"
     );
@@ -303,7 +316,7 @@ export function formatScoutReply(
   });
 
   lines.push(
-    `**See more:** [Discover](${discoverUrl(query)})`,
+    `**See more:** [Discover](${getScoutDiscoverUrl(query)})`,
     "",
     "_Ranked from your live Wikipedia / TheSportsDB / Wikidata roster — no paid API required._"
   );

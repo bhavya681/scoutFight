@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
-import { Send, Loader2, ExternalLink } from "lucide-react";
+import { Send, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -13,25 +12,23 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
 import { SPORTS, GENDER_FILTER_OPTIONS, getWeightClassOptions } from "@/lib/constants";
 import { MATCHMAKER_COUNTRY_OPTIONS } from "@/lib/utils/region-match";
+import {
+  TalentResearchResults,
+  type TalentResearchPick,
+} from "@/components/ai/talent-research-results";
 
-interface MatchmakerPick {
-  slug: string;
-  displayName: string;
-  sport: string;
-  weightClass?: string;
-  nationality: string;
-  record?: string;
-  score: number;
-  reasons: string[];
-  profileUrl: string;
-}
+const SELECT_CONTENT_PROPS = {
+  position: "popper" as const,
+  className: "z-[100] max-h-[min(16rem,50vh)]",
+  sideOffset: 4,
+};
 
 interface MatchmakerResponse {
   recommendations?: string;
-  matches?: MatchmakerPick[];
+  analysis?: string;
+  matches?: TalentResearchPick[];
   poolSize?: number;
   source?: string;
   error?: string;
@@ -43,8 +40,9 @@ export function AiMatchmakerForm({ onNavigateAway }: { onNavigateAway?: () => vo
   const [country, setCountry] = useState("");
   const [gender, setGender] = useState("");
   const [brief, setBrief] = useState("");
-  const [result, setResult] = useState("");
-  const [matches, setMatches] = useState<MatchmakerPick[]>([]);
+  const [emptyMessage, setEmptyMessage] = useState("");
+  const [analysis, setAnalysis] = useState("");
+  const [matches, setMatches] = useState<TalentResearchPick[]>([]);
   const [poolSize, setPoolSize] = useState<number | null>(null);
   const [source, setSource] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -54,7 +52,8 @@ export function AiMatchmakerForm({ onNavigateAway }: { onNavigateAway?: () => vo
   async function match() {
     if (!brief.trim() || loading) return;
     setLoading(true);
-    setResult("");
+    setEmptyMessage("");
+    setAnalysis("");
     setMatches([]);
     setPoolSize(null);
     setSource(null);
@@ -72,15 +71,18 @@ export function AiMatchmakerForm({ onNavigateAway }: { onNavigateAway?: () => vo
       });
       const data = (await res.json()) as MatchmakerResponse;
       if (!res.ok) {
-        setResult(data.error ?? "Matchmaker request failed.");
+        setEmptyMessage(data.error ?? "Matchmaker request failed.");
         return;
       }
-      setResult(data.recommendations ?? "No recommendations.");
       setMatches(data.matches ?? []);
       setPoolSize(data.poolSize ?? null);
       setSource(data.source ?? null);
+      setAnalysis(data.analysis?.trim() ?? "");
+      if ((data.matches?.length ?? 0) === 0) {
+        setEmptyMessage(data.recommendations ?? "No matches found for these filters.");
+      }
     } catch {
-      setResult("Could not reach the matchmaker. Check your connection and try again.");
+      setEmptyMessage("Could not reach the matchmaker. Check your connection and try again.");
     } finally {
       setLoading(false);
     }
@@ -89,16 +91,23 @@ export function AiMatchmakerForm({ onNavigateAway }: { onNavigateAway?: () => vo
   return (
     <div className="space-y-4">
       <p className="text-xs text-muted-foreground leading-relaxed">
-        Rank athletes for your card by sport, weight, country, gender, and brief. Optional
-        OpenAI adds narrative analysis.
+        Rank athletes for your card by sport, weight, country, gender, and brief. Results link
+        straight to athlete profiles.
       </p>
       <div>
         <Label className="text-xs">Sport / Discipline</Label>
-        <Select value={sport} onValueChange={(v) => { setSport(v); setWeightClass(""); }}>
+        <Select
+          value={sport}
+          onValueChange={(v) => {
+            setSport(v);
+            setWeightClass("");
+          }}
+          disabled={loading}
+        >
           <SelectTrigger className="mt-1 h-9">
             <SelectValue placeholder="Sport" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent {...SELECT_CONTENT_PROPS}>
             {SPORTS.map((s) => (
               <SelectItem key={s.id} value={s.id}>
                 {s.label}
@@ -112,11 +121,12 @@ export function AiMatchmakerForm({ onNavigateAway }: { onNavigateAway?: () => vo
         <Select
           value={weightClass || "any"}
           onValueChange={(v) => setWeightClass(v === "any" ? "" : v)}
+          disabled={loading}
         >
           <SelectTrigger className="mt-1 h-9">
             <SelectValue placeholder="Weight class" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent {...SELECT_CONTENT_PROPS}>
             <SelectItem value="any">Any class</SelectItem>
             {weightOptions.map((wc) => (
               <SelectItem key={wc} value={wc}>
@@ -128,11 +138,15 @@ export function AiMatchmakerForm({ onNavigateAway }: { onNavigateAway?: () => vo
       </div>
       <div>
         <Label className="text-xs">Country / Region</Label>
-        <Select value={country || "any"} onValueChange={(v) => setCountry(v === "any" ? "" : v)}>
+        <Select
+          value={country || "any"}
+          onValueChange={(v) => setCountry(v === "any" ? "" : v)}
+          disabled={loading}
+        >
           <SelectTrigger className="mt-1 h-9">
             <SelectValue placeholder="Country" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent {...SELECT_CONTENT_PROPS}>
             <SelectItem value="any">Any country</SelectItem>
             {MATCHMAKER_COUNTRY_OPTIONS.map((c) => (
               <SelectItem key={c.id} value={c.id}>
@@ -144,11 +158,15 @@ export function AiMatchmakerForm({ onNavigateAway }: { onNavigateAway?: () => vo
       </div>
       <div>
         <Label className="text-xs">Gender</Label>
-        <Select value={gender || "any"} onValueChange={(v) => setGender(v === "any" ? "" : v)}>
+        <Select
+          value={gender || "any"}
+          onValueChange={(v) => setGender(v === "any" ? "" : v)}
+          disabled={loading}
+        >
           <SelectTrigger className="mt-1 h-9">
             <SelectValue placeholder="Gender" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent {...SELECT_CONTENT_PROPS}>
             <SelectItem value="any">Any gender</SelectItem>
             {GENDER_FILTER_OPTIONS.map((g) => (
               <SelectItem key={g.id} value={g.id}>
@@ -166,59 +184,37 @@ export function AiMatchmakerForm({ onNavigateAway }: { onNavigateAway?: () => vo
           placeholder="e.g. Main card lightweight, US market draw, open to bookings…"
           rows={4}
           className="mt-1 text-sm"
+          disabled={loading}
         />
       </div>
-      <Button className="w-full gap-2" onClick={match} disabled={loading}>
+      <Button className="w-full gap-2" onClick={match} disabled={loading || !brief.trim()}>
         {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
         Find matches
       </Button>
 
       {matches.length > 0 && (
-        <div className="space-y-3">
-          <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-            {poolSize != null && (
-              <span>
-                {poolSize} in pool · top {matches.length}
-              </span>
-            )}
-            {source && (
-              <Badge variant="secondary" className="text-[10px] uppercase font-normal">
-                {source === "openai" ? "AI + live data" : "Live rankings"}
-              </Badge>
-            )}
-          </div>
-          {matches.map((m, i) => (
-            <Link
-              key={m.slug}
-              href={m.profileUrl}
-              className="block rounded-xl border border-border bg-card p-3 hover:border-brand/40 transition-colors"
-              onClick={onNavigateAway}
-            >
-              <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0">
-                  <p className="font-medium text-sm">
-                    <span className="text-brand mr-1.5">#{i + 1}</span>
-                    {m.displayName}
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-0.5 capitalize">
-                    {m.sport.replace(/_/g, " ")}
-                    {m.weightClass ? ` · ${m.weightClass}` : ""} · {m.nationality}
-                    {m.record ? ` · ${m.record}` : ""}
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                    {m.reasons.join(" · ")}
-                  </p>
-                </div>
-                <ExternalLink className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-              </div>
-            </Link>
-          ))}
+        <TalentResearchResults
+          matches={matches}
+          poolSize={poolSize}
+          source={source}
+          onNavigateAway={onNavigateAway}
+        />
+      )}
+
+      {analysis && matches.length > 0 && (
+        <div className="rounded-xl border border-border/50 bg-muted/30 p-3 space-y-1.5">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+            AI analysis
+          </p>
+          <p className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed">
+            {analysis}
+          </p>
         </div>
       )}
 
-      {result && (
+      {emptyMessage && (
         <div className="rounded-xl bg-muted/30 p-3 text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed border border-border/50">
-          {result}
+          {emptyMessage}
         </div>
       )}
     </div>

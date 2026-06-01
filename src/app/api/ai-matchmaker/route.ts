@@ -68,6 +68,7 @@ export async function POST(request: NextRequest) {
 
   return NextResponse.json({
     recommendations,
+    analysis: aiNote,
     matches: picks,
     poolSize,
     source,
