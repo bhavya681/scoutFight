@@ -6,6 +6,7 @@ import {
   queryDiscoverTalent,
   type DiscoverSearchParams,
 } from "@/lib/data/discover-query";
+import { discoverParamsToQueryString } from "@/lib/data/discover-filter-key";
 import { getAllTalent } from "@/lib/data/talent-repository";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -46,6 +47,7 @@ async function DiscoverDirectoryLoader({
 
   return (
     <DiscoverDirectory
+      key={discoverParamsToQueryString(params)}
       initialTalent={talent}
       initialTotal={total}
       initialParams={params}

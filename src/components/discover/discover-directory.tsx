@@ -110,6 +110,11 @@ export function DiscoverDirectory({
   const [total, setTotal] = useState(initialTotal);
   const [loading, setLoading] = useState(false);
   const lastFetchedQuery = useRef(initialQuery);
+  const currentQueryRef = useRef(controls.queryString);
+
+  useEffect(() => {
+    currentQueryRef.current = controls.queryString;
+  }, [controls.queryString]);
 
   useEffect(() => {
     const qs = controls.queryString;
@@ -118,12 +123,13 @@ export function DiscoverDirectory({
     const ac = new AbortController();
     setLoading(true);
 
-    fetch(`/api/discover?${controls.queryString}`, { signal: ac.signal })
+    fetch(`/api/discover?${qs}`, { signal: ac.signal, cache: "no-store" })
       .then((res) => {
         if (!res.ok) throw new Error("Discover fetch failed");
         return res.json() as Promise<{ talent: TalentProfile[]; total: number }>;
       })
       .then((data) => {
+        if (currentQueryRef.current !== qs || ac.signal.aborted) return;
         setTalent(data.talent);
         setTotal(data.total);
         lastFetchedQuery.current = qs;
