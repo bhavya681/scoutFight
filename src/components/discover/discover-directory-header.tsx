@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { MarketingPageHero } from "@/components/layout/marketing-page-hero";
 import { formatDirectoryCount } from "@/lib/data/discover-query";
 import { SPORTS } from "@/lib/constants";
+import { CombatModeToggle } from "@/components/combatpedia/combat-mode-toggle";
 
 export function DiscoverDirectoryHeader({ totalAthletes }: { totalAthletes: number }) {
   const countLabel = formatDirectoryCount(totalAthletes);
@@ -31,6 +32,7 @@ export function DiscoverDirectoryHeader({ totalAthletes }: { totalAthletes: numb
       ]}
       actions={
         <div className="flex flex-col gap-2">
+          <CombatModeToggle variant="full" />
           <Button className="w-full h-11 font-semibold" asChild>
             <Link href="/compare">
               <BarChart2 className="h-4 w-4" />

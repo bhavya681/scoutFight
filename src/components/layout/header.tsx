@@ -1,27 +1,30 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bell, LayoutDashboard, Menu, Moon, Search, Sun, X } from "lucide-react";
+import { LayoutDashboard, Menu, Moon, Search, Sun, X } from "lucide-react";
 import { BrandLogo } from "@/components/brand/brand-logo";
 import { TalentAiIcon } from "@/components/ai/talent-ai-icon";
-import { useTheme } from "next-themes";
+import { useTheme } from "@/components/providers/theme-provider";
 import { Button } from "@/components/ui/button";
 import { NAV_LINKS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { useUIStore } from "@/stores/ui-store";
-import { useNotificationsStore } from "@/stores/notifications-store";
 import { useBodyScrollLock } from "@/lib/hooks/use-body-scroll-lock";
+import { CombatModeToggle } from "@/components/combatpedia/combat-mode-toggle";
 
 export function Header() {
   const pathname = usePathname();
-  const { theme, setTheme } = useTheme();
+  const { resolvedTheme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
   const { mobileMenuOpen, setMobileMenuOpen, toggleTalentAi, openTalentAi, talentAiOpen } =
     useUIStore();
-  const unreadCount = useNotificationsStore((s) => s.unreadCount);
-
   useBodyScrollLock(mobileMenuOpen);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     setMobileMenuOpen(false);
@@ -53,6 +56,7 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
+          <CombatModeToggle />
           <Button
             variant="ghost"
             size="icon"
@@ -75,27 +79,15 @@ export function Header() {
           <Button
             variant="ghost"
             size="icon"
-            className="relative hidden sm:flex h-9 w-9 sm:h-10 sm:w-10"
-            asChild
-          >
-            <Link href="/dashboard/messages" aria-label="Messages">
-              <Bell className="h-4 w-4" />
-              {unreadCount > 0 && (
-                <span className="absolute -right-0.5 -top-0.5 min-w-4 h-4 px-0.5 rounded-full bg-pwr-red text-[10px] text-white flex items-center justify-center font-bold tabular-nums">
-                  {unreadCount > 9 ? "9+" : unreadCount}
-                </span>
-              )}
-            </Link>
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
             className="h-9 w-9 sm:h-10 sm:w-10"
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
             aria-label="Toggle theme"
           >
-            <Sun className="h-4 w-4 dark:hidden" />
-            <Moon className="h-4 w-4 hidden dark:block" />
+            {mounted && resolvedTheme === "dark" ? (
+              <Moon className="h-4 w-4" />
+            ) : (
+              <Sun className="h-4 w-4" />
+            )}
           </Button>
           <Button size="sm" className="hidden md:flex ml-0.5 h-9" asChild>
             <Link href="/dashboard?role=recruiter">
@@ -147,6 +139,9 @@ export function Header() {
               <TalentAiIcon variant="nav" active={talentAiOpen} />
               Talent Research
             </Button>
+            <div className="px-0" onClick={() => setMobileMenuOpen(false)}>
+              <CombatModeToggle variant="full" />
+            </div>
             <Button className="w-full min-h-[44px]" asChild onClick={() => setMobileMenuOpen(false)}>
               <Link href="/dashboard?role=recruiter">Open dashboard</Link>
             </Button>

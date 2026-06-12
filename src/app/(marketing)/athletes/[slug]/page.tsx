@@ -19,6 +19,7 @@ import { YouTubeSearchFallback } from "@/components/video/youtube-search-fallbac
 import { CareerStatusBadge } from "@/components/talent/career-status-badge";
 import { UserAvatar } from "@/components/ui/user-avatar";
 import { isUsableImageUrl } from "@/lib/utils/avatar-fallback";
+import { CombatpediaProfileLink } from "@/components/combatpedia/combatpedia-profile-link";
 
 export const revalidate = 3600;
 
@@ -187,17 +188,20 @@ export default async function AthleteProfilePage({ params }: PageProps) {
                     </ul>
                   )}
                   <p className="text-muted-foreground leading-relaxed text-sm">{talent.bio}</p>
-                  {talent.wikipediaUrl && (
-                    <Link
-                      href={talent.wikipediaUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 text-sm text-brand mt-4 hover:underline"
-                    >
-                      Read full biography on Wikipedia
-                      <ExternalLink className="h-3 w-3" />
-                    </Link>
-                  )}
+                  <div className="mt-6 space-y-4">
+                    <CombatpediaProfileLink slug={talent.slug} displayName={talent.displayName} />
+                    {talent.wikipediaUrl && (
+                      <Link
+                        href={talent.wikipediaUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 text-sm text-brand hover:underline"
+                      >
+                        Read on Wikipedia (external)
+                        <ExternalLink className="h-3 w-3" />
+                      </Link>
+                    )}
+                  </div>
                   <div className="flex flex-wrap gap-2 mt-4">
                     {talent.tags.map((tag) => (
                       <Badge key={tag} variant="outline">{tag}</Badge>

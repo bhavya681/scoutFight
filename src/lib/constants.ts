@@ -130,6 +130,7 @@ export function getWeightClassOptions(sportId?: string): string[] {
 
 export const NAV_LINKS = [
   { href: "/discover", label: "Discover" },
+  { href: "/combatpedia", label: "Combatpedia" },
   { href: "/professionals", label: "Professionals" },
   { href: "/organizations", label: "Promotions" },
   { href: "/compare", label: "Compare" },
@@ -141,6 +142,7 @@ export const NAV_LINKS = [
 export const FOOTER_LINKS = {
   platform: [
     { href: "/discover", label: "Talent Discovery" },
+    { href: "/combatpedia", label: "Combatpedia" },
     { href: "/compare", label: "Compare Talent" },
     { href: "/marketplace", label: "Marketplace" },
     { href: "/videos", label: "Video Library" },
@@ -163,7 +165,6 @@ export const DASHBOARD_LINKS = {
     { href: "/dashboard/analytics", label: "Visibility Analytics" },
     { href: "/dashboard/bookings", label: "Booking Requests" },
     { href: "/dashboard/visibility", label: "Availability" },
-    { href: "/dashboard/messages", label: "Messages" },
   ],
   recruiter: [
     { href: "/dashboard", label: "Overview" },
@@ -175,7 +176,6 @@ export const DASHBOARD_LINKS = {
     { href: "/dashboard/offers", label: "Offer Management" },
     { href: "/dashboard/negotiations", label: "Negotiations" },
     { href: "/dashboard/contracts", label: "Contract Management" },
-    { href: "/dashboard/messages", label: "Messaging" },
   ],
   admin: [
     { href: "/dashboard", label: "Overview" },
@@ -220,7 +220,6 @@ export const PRICING_PLANS = [
     features: [
       "Everything in Scout",
       "Recruitment CRM",
-      "Messaging",
       "Booking requests",
       "MMA / SportsDB enrichment",
     ],

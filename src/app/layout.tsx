@@ -73,7 +73,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning className={`${inter.variable} ${oswald.variable} h-full`}>
-      <body className="min-h-full flex flex-col font-sans antialiased">
+      <body
+        suppressHydrationWarning
+        className="min-h-full flex flex-col font-sans antialiased"
+      >
         <Providers>
           {children}
           <CompareBar />
