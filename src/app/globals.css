@@ -34,6 +34,11 @@
   --hero-grid-line: rgba(0, 0, 0, 0.06);
   --shadow-card: 0 12px 40px -12px rgba(0, 0, 0, 0.12);
   --overlay: rgba(255, 255, 255, 0.65);
+  --scrollbar-size: 10px;
+  --scrollbar-thumb: color-mix(in srgb, var(--muted-foreground) 32%, transparent);
+  --scrollbar-thumb-hover: color-mix(in srgb, var(--muted-foreground) 52%, transparent);
+  --scrollbar-thumb-active: color-mix(in srgb, var(--brand) 55%, var(--muted-foreground) 45%);
+  --scrollbar-track: transparent;
 }
 
 .dark {
@@ -70,6 +75,9 @@
   --hero-grid-line: rgba(255, 255, 255, 0.06);
   --shadow-card: 0 16px 48px -16px rgba(0, 0, 0, 0.55);
   --overlay: rgba(5, 5, 8, 0.55);
+  --scrollbar-thumb: color-mix(in srgb, var(--muted-foreground) 38%, transparent);
+  --scrollbar-thumb-hover: color-mix(in srgb, var(--muted-foreground) 58%, transparent);
+  --scrollbar-thumb-active: color-mix(in srgb, var(--brand) 65%, var(--muted-foreground) 35%);
 }
 
 @theme inline {
@@ -106,6 +114,14 @@
 html {
   overflow-x: clip;
   -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+  scrollbar-gutter: stable;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 }
 
 body {
@@ -195,11 +211,98 @@ body {
   box-shadow: 0 0 40px rgba(239, 68, 68, 0.25);
 }
 
-.scrollbar-hide::-webkit-scrollbar {
+/* Professional smooth scrollbars — applied app-wide */
+html,
+body,
+.scrollbar-smooth {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+.scrollbar-smooth::-webkit-scrollbar {
+  width: var(--scrollbar-size);
+  height: var(--scrollbar-size);
+}
+
+html::-webkit-scrollbar-track,
+body::-webkit-scrollbar-track,
+.scrollbar-smooth::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+}
+
+html::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb,
+.scrollbar-smooth::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  transition: background-color 0.2s ease;
+}
+
+html::-webkit-scrollbar-thumb:hover,
+body::-webkit-scrollbar-thumb:hover,
+.scrollbar-smooth::-webkit-scrollbar-thumb:hover {
+  background-color: var(--scrollbar-thumb-hover);
+}
+
+html::-webkit-scrollbar-thumb:active,
+body::-webkit-scrollbar-thumb:active,
+.scrollbar-smooth::-webkit-scrollbar-thumb:active {
+  background-color: var(--scrollbar-thumb-active);
+}
+
+html::-webkit-scrollbar-corner,
+body::-webkit-scrollbar-corner,
+.scrollbar-smooth::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Nested scroll regions inherit the same treatment */
+*:not(.scrollbar-hide) {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
+*:not(.scrollbar-hide)::-webkit-scrollbar {
+  width: var(--scrollbar-size);
+  height: var(--scrollbar-size);
+}
+
+*:not(.scrollbar-hide)::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+}
+
+*:not(.scrollbar-hide)::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  transition: background-color 0.2s ease;
+}
+
+*:not(.scrollbar-hide)::-webkit-scrollbar-thumb:hover {
+  background-color: var(--scrollbar-thumb-hover);
+}
+
+*:not(.scrollbar-hide)::-webkit-scrollbar-thumb:active {
+  background-color: var(--scrollbar-thumb-active);
+}
+
+*:not(.scrollbar-hide)::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Opt-out only when scrollbars must be fully hidden */
+.scrollbar-hide::-webkit-scrollbar,
+.scrollbar-none::-webkit-scrollbar {
   display: none;
 }
 
-.scrollbar-hide {
+.scrollbar-hide,
+.scrollbar-none {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
@@ -258,11 +361,21 @@ body {
 
 .scroll-touch {
   -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  overscroll-behavior: contain;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-touch {
+    scroll-behavior: auto;
+  }
 }
 
 .table-scroll {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  overscroll-behavior: contain;
   margin-left: -1rem;
   margin-right: -1rem;
   padding-left: 1rem;

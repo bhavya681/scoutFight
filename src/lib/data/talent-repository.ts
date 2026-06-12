@@ -22,11 +22,16 @@ import {
   fetchTheSportsDbPlayer,
   searchTheSportsDbFightingPlayers,
 } from "@/lib/integrations/the-sports-db";
+import {
+  fetchCricketPlayerById,
+  fetchCricketPlayerByName,
+  searchCricketPlayers,
+} from "@/lib/integrations/cricket-api";
 import { fetchWikipediaSearchTitle } from "@/lib/integrations/wikipedia-discovery";
 import { talentMatchesGender } from "@/lib/utils/gender-match";
 import { fetchMmaFighterStats } from "@/lib/integrations/mma-api";
 import { fetchCommonsImageUrl } from "@/lib/integrations/wikimedia-commons";
-import type { ExternalFighterStats } from "@/lib/integrations/types";
+import type { ExternalCricketStats, ExternalFighterStats } from "@/lib/integrations/types";
 import { getTalentFromDatabase } from "@/lib/supabase/talent-db";
 import { isUsableImageUrl } from "@/lib/utils/avatar-fallback";
 import { nationalityToCountryCode } from "@/lib/utils/country";
@@ -62,6 +67,27 @@ function mergeExternalStats(
           : profile.externalIds?.theSportsDb,
       mmaApi:
         stats.source === "mma_api" ? stats.externalId : profile.externalIds?.mmaApi,
+    },
+    dataSource: "merged",
+  };
+}
+
+function mergeCricketStats(
+  profile: TalentProfile,
+  stats: ExternalCricketStats
+): TalentProfile {
+  return {
+    ...profile,
+    heightCm: profile.heightCm ?? stats.heightCm,
+    nationality: profile.nationality || stats.nationality || profile.nationality,
+    weightClass: profile.weightClass ?? stats.cricket.role,
+    avatarUrl: profile.avatarUrl || stats.thumbUrl || profile.avatarUrl,
+    promotion: profile.promotion ?? stats.cricket.league,
+    currentOrganization: profile.currentOrganization ?? stats.cricket.team,
+    cricketStats: { ...profile.cricketStats, ...stats.cricket },
+    externalIds: {
+      ...profile.externalIds,
+      theSportsDb: stats.externalId ?? profile.externalIds?.theSportsDb,
     },
     dataSource: "merged",
   };
@@ -190,12 +216,25 @@ async function buildFullTalentProfile(
   const wikiTitle = entryWikipediaTitle(entry);
   const displayName = entryDisplayName(entry);
 
-  const [wiki, sportsDbDetail, mmaStats] = await Promise.all([
+  const isCricket = entrySport(entry) === "cricket";
+
+  const [wiki, sportsDbDetail, mmaStats, cricketStats] = await Promise.all([
     wikiTitle ? fetchWikipediaSummary(wikiTitle) : Promise.resolve(null),
-    entry.source === "the_sports_db"
+    entry.source === "the_sports_db" && !isCricket
       ? fetchTheSportsDbPlayerById(entry.externalId)
-      : fetchTheSportsDbPlayer(displayName),
-    fetchMmaFighterStats(displayName),
+      : !isCricket
+        ? fetchTheSportsDbPlayer(displayName)
+        : Promise.resolve(null),
+    isCricket ? Promise.resolve(null) : fetchMmaFighterStats(displayName),
+    isCricket
+      ? (async () => {
+          if (entry.source === "the_sports_db") {
+            const byId = await fetchCricketPlayerById(entry.externalId);
+            if (byId) return byId;
+          }
+          return fetchCricketPlayerByName(displayName);
+        })()
+      : Promise.resolve(null),
   ]);
 
   if (wiki) {
@@ -213,6 +252,7 @@ async function buildFullTalentProfile(
 
   if (sportsDbDetail) profile = mergeExternalStats(profile, sportsDbDetail);
   if (mmaStats) profile = mergeExternalStats(profile, mmaStats);
+  if (cricketStats) profile = mergeCricketStats(profile, cricketStats);
 
   if (!isUsableImageUrl(profile.avatarUrl)) {
     const commons = await fetchCommonsImageUrl(displayName);
@@ -228,10 +268,31 @@ async function resolveEntryBySlug(slug: string): Promise<AthleteDiscoveryEntry |
   if (cached) return cached;
 
   const name = slug.replace(/-/g, " ");
-  const [wikiTitle, fighting] = await Promise.all([
+  const [wikiTitle, fighting, cricket] = await Promise.all([
     fetchWikipediaSearchTitle(name),
     searchTheSportsDbFightingPlayers(name),
+    searchCricketPlayers(name),
   ]);
+
+  const cricketMatch =
+    cricket.find((p) => slugify(p.strPlayer ?? "") === slug) ?? cricket[0];
+
+  if (cricketMatch?.idPlayer && cricketMatch.strPlayer) {
+    const entry: AthleteDiscoveryEntry = {
+      source: "the_sports_db",
+      externalId: cricketMatch.idPlayer,
+      slug,
+      displayName: cricketMatch.strPlayer,
+      sport: "cricket",
+      weightClass: cricketMatch.strPosition || undefined,
+      nationality: cricketMatch.strNationality ?? "International",
+      avatarUrl: cricketMatch.strThumb || undefined,
+      league: cricketMatch.strTeam ?? "Cricket",
+      teamName: cricketMatch.strTeam,
+    };
+    if (wikiTitle) Object.assign(entry, { wikipediaTitle: wikiTitle });
+    return entry;
+  }
 
   const sportsMatch =
     fighting.find((p) => slugify(p.strPlayer ?? "") === slug) ?? fighting[0];
@@ -285,7 +346,7 @@ const getCachedAllTalentSummaries = unstable_cache(
       return [];
     }
   },
-  ["scoutfight-all-talent-summaries-v9"],
+  ["scoutfight-all-talent-summaries-v10"],
   { revalidate: 3600, tags: ["athletes"] }
 );
 
@@ -318,6 +379,7 @@ export async function getMvpRosterStats() {
   return {
     mmaSeed: index.mmaCount,
     wrestlingSeed: index.wrestlingCount,
+    cricketSeed: index.cricketCount,
     athletes: index.entries.length,
     professionals: pros.length,
     organizations: orgs.length,

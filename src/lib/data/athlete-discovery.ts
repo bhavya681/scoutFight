@@ -1,10 +1,12 @@
 import { unstable_cache } from "next/cache";
 import { MVP_SEED_LIMITS, MVP_CACHE_REVALIDATE } from "@/lib/mvp/config";
 import { discoverMmaFightersFromSportsDb } from "@/lib/integrations/the-sports-db";
+import { discoverCricketPlayersFromSportsDb } from "@/lib/integrations/cricket-api";
 import {
   fetchWikipediaCategoryAthletes,
   WRESTLING_WIKIPEDIA_CATEGORIES,
   OTHER_COMBAT_SPORT_CATEGORIES,
+  CRICKET_WIKIPEDIA_CATEGORIES,
 } from "@/lib/integrations/wikipedia-discovery";
 import {
   fetchWikidataWrestlers,
@@ -23,6 +25,7 @@ export interface AthleteDiscoveryIndex {
   entries: AthleteDiscoveryEntry[];
   mmaCount: number;
   wrestlingCount: number;
+  cricketCount: number;
   sportCounts: Partial<Record<SportType, number>>;
   fetchedAt: number;
 }
@@ -115,6 +118,26 @@ async function discoverWrestlingSeed(limit: number): Promise<AthleteDiscoveryEnt
   return mergeBySlug([...wikidata, ...wiki]).slice(0, limit);
 }
 
+async function discoverCricketSeed(limit: number): Promise<AthleteDiscoveryEntry[]> {
+  const sportsDb: AthleteDiscoveryEntry[] = await discoverCricketPlayersFromSportsDb(limit);
+
+  if (sportsDb.length >= 25) return sportsDb.slice(0, limit);
+
+  const wikiBatches = await Promise.all(
+    CRICKET_WIKIPEDIA_CATEGORIES.map((c) =>
+      fetchWikipediaCategoryAthletes(c.category, "cricket", c.limit)
+    )
+  );
+  const wiki = wikiBatches.flat().map(
+    (w): AthleteDiscoveryEntry => ({
+      ...w,
+      displayName: w.wikipediaTitle.replace(/_/g, " "),
+    })
+  );
+
+  return mergeBySlug([...sportsDb, ...wiki]).slice(0, limit);
+}
+
 async function discoverOtherCombatSports(): Promise<AthleteDiscoveryEntry[]> {
   const batches = await Promise.all(
     OTHER_COMBAT_SPORT_CATEGORIES.map((c) =>
@@ -133,26 +156,31 @@ async function discoverOtherCombatSports(): Promise<AthleteDiscoveryEntry[]> {
 }
 
 async function fetchDiscoveryIndex(): Promise<AthleteDiscoveryIndex> {
-  const [mmaResult, wrestlingResult, otherResult] = await Promise.allSettled([
+  const [mmaResult, wrestlingResult, cricketResult, otherResult] = await Promise.allSettled([
     discoverMmaSeed(MVP_SEED_LIMITS.mmaFighters),
     discoverWrestlingSeed(MVP_SEED_LIMITS.wrestlers),
+    discoverCricketSeed(MVP_SEED_LIMITS.cricketers),
     discoverOtherCombatSports(),
   ]);
 
   const mma = mmaResult.status === "fulfilled" ? mmaResult.value : [];
   const wrestling = wrestlingResult.status === "fulfilled" ? wrestlingResult.value : [];
+  const cricket = cricketResult.status === "fulfilled" ? cricketResult.value : [];
   const other = otherResult.status === "fulfilled" ? otherResult.value : [];
 
   if (mmaResult.status === "rejected") console.warn("[ScoutFight] MMA seed failed", mmaResult.reason);
   if (wrestlingResult.status === "rejected")
     console.warn("[ScoutFight] Wrestling seed failed", wrestlingResult.reason);
+  if (cricketResult.status === "rejected")
+    console.warn("[ScoutFight] Cricket seed failed", cricketResult.reason);
 
-  const entries = mergeBySlug([...mma, ...wrestling, ...other]);
+  const entries = mergeBySlug([...mma, ...wrestling, ...cricket, ...other]);
 
   return {
     entries,
     mmaCount: mma.length,
     wrestlingCount: wrestling.length,
+    cricketCount: cricket.length,
     sportCounts: countBySport(entries),
     fetchedAt: Date.now(),
   };
@@ -160,7 +188,7 @@ async function fetchDiscoveryIndex(): Promise<AthleteDiscoveryIndex> {
 
 const getCachedDiscoveryIndex = unstable_cache(
   fetchDiscoveryIndex,
-  ["scoutfight-mvp-athlete-index-v6"],
+  ["scoutfight-mvp-athlete-index-v7"],
   { revalidate: MVP_CACHE_REVALIDATE, tags: ["athletes"] }
 );
 

@@ -70,7 +70,7 @@ export function CombatModeToggle({ variant = "header", className }: CombatModeTo
             <p className="text-xs text-muted-foreground truncate">
               {combatActive
                 ? "Wiki articles, galleries & sport modes"
-                : "Wikipedia-powered wrestling, MMA & boxing encyclopedia"}
+                : "Wikipedia-powered wrestling, MMA, boxing & cricket encyclopedia"}
             </p>
           </div>
         </div>

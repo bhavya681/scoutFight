@@ -136,6 +136,58 @@ export default async function AthleteProfilePage({ params }: PageProps) {
               </TabsList>
               <TabsContent value="overview" className="mt-4">
                 <Card className="p-6">
+                  {talent.cricketStats && (
+                    <dl className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6 text-sm">
+                      {talent.cricketStats.role && (
+                        <div>
+                          <dt className="text-muted-foreground">Role</dt>
+                          <dd className="font-medium">{talent.cricketStats.role}</dd>
+                        </div>
+                      )}
+                      {talent.cricketStats.battingHand && (
+                        <div>
+                          <dt className="text-muted-foreground">Batting</dt>
+                          <dd className="font-medium capitalize">{talent.cricketStats.battingHand}-handed</dd>
+                        </div>
+                      )}
+                      {talent.cricketStats.league && (
+                        <div>
+                          <dt className="text-muted-foreground">League</dt>
+                          <dd className="font-medium">{talent.cricketStats.league}</dd>
+                        </div>
+                      )}
+                      {talent.cricketStats.team && (
+                        <div>
+                          <dt className="text-muted-foreground">Team</dt>
+                          <dd className="font-medium">{talent.cricketStats.team}</dd>
+                        </div>
+                      )}
+                      {talent.cricketStats.careerRuns != null && (
+                        <div>
+                          <dt className="text-muted-foreground">Career runs</dt>
+                          <dd className="font-medium">{talent.cricketStats.careerRuns.toLocaleString()}</dd>
+                        </div>
+                      )}
+                      {talent.cricketStats.careerWickets != null && (
+                        <div>
+                          <dt className="text-muted-foreground">Career wickets</dt>
+                          <dd className="font-medium">{talent.cricketStats.careerWickets}</dd>
+                        </div>
+                      )}
+                      {talent.cricketStats.iccTestRanking != null && (
+                        <div>
+                          <dt className="text-muted-foreground">ICC Test rank</dt>
+                          <dd className="font-medium">#{talent.cricketStats.iccTestRanking}</dd>
+                        </div>
+                      )}
+                      {talent.cricketStats.iccOdiRanking != null && (
+                        <div>
+                          <dt className="text-muted-foreground">ICC ODI rank</dt>
+                          <dd className="font-medium">#{talent.cricketStats.iccOdiRanking}</dd>
+                        </div>
+                      )}
+                    </dl>
+                  )}
                   {(talent.heightCm || talent.reachCm || talent.weightKg || talent.experienceYears) && (
                     <dl className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6 text-sm">
                       {talent.heightCm && (

@@ -6,6 +6,7 @@
 export const MVP_SEED_LIMITS = {
   mmaFighters: 100,
   wrestlers: 120,
+  cricketers: 80,
   promotions: 20,
 } as const;
 
@@ -22,6 +23,12 @@ export const MVP_DATA_STACK = {
     primary: "wikidata",
     secondary: "wikipedia",
     note: "No Cagematch API — seed from Wikidata + Wikipedia; users add match history",
+  },
+  cricket: {
+    primary: "the_sports_db",
+    secondary: "wikipedia",
+    note: "IPL, BBL, PSL and franchise rosters — role, league, and bio stats for hiring",
+    api: "/api/cricket/players",
   },
   videos: {
     primary: "youtube",

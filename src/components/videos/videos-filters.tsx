@@ -56,7 +56,7 @@ export function VideosFilters({ count }: { count: number }) {
       </div>
 
       <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between">
-        <div className="flex gap-2 overflow-x-auto scroll-touch scrollbar-hide pb-0.5">
+        <div className="flex gap-2 overflow-x-auto scroll-touch scrollbar-smooth pb-0.5">
           {SPORT_CHIPS.map((chip) => {
             const active = activeSport === chip.id;
             return (

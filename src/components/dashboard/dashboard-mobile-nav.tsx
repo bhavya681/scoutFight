@@ -39,7 +39,7 @@ export function DashboardMobileNav({ role: defaultRole = "recruiter" }: { role?:
           </SelectContent>
         </Select>
         <nav
-          className="flex flex-1 gap-1.5 overflow-x-auto scroll-touch scrollbar-hide min-w-0"
+          className="flex flex-1 gap-1.5 overflow-x-auto scroll-touch scrollbar-smooth min-w-0"
           aria-label="Dashboard sections"
         >
           {links.map((link) => {

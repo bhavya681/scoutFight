@@ -11,7 +11,7 @@ export function CombatpediaSportNav({ activeSport }: { activeSport?: Combatpedia
 
   return (
     <nav
-      className="flex gap-2 overflow-x-auto pb-1 scrollbar-none"
+      className="flex gap-2 overflow-x-auto pb-1 scroll-touch scrollbar-smooth"
       aria-label="Combat sport modes"
     >
       {COMBATPEDIA_SPORTS.map((sport) => {

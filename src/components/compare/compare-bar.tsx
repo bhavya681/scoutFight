@@ -28,7 +28,7 @@ export function CompareBar() {
             <GitCompare className="h-4 w-4 text-pwr-red" />
             Compare ({items.length}/4)
           </div>
-          <div className="flex gap-2 overflow-x-auto scrollbar-hide flex-1">
+          <div className="flex gap-2 overflow-x-auto scroll-touch scrollbar-smooth flex-1">
             {items.map((item) => (
               <div
                 key={item.id}

@@ -13,6 +13,7 @@ export const OPPORTUNITY_SEED_LIMIT = 30;
 function seekTypeForSport(sport: SportType): MarketplaceListing["seekType"] {
   if (sport === "wrestling") return "looking_for_wrestlers";
   if (sport === "boxing") return "looking_for_boxers";
+  if (sport === "cricket") return "looking_for_cricketers";
   return "looking_for_mma_fighters";
 }
 
@@ -30,6 +31,7 @@ function recruitmentListing(
     muay_thai: ["Fighter recruitment"],
     bjj: ["Athlete recruitment"],
     grappling: ["Athlete recruitment"],
+    cricket: ["Franchise squad open trials", "Overseas player recruitment", "Domestic league scouting"],
     other: ["Talent recruitment"],
   };
   const titleList = titles[sport] ?? titles.mma ?? ["Talent recruitment"];

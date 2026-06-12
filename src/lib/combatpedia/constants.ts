@@ -15,6 +15,7 @@ export const COMBATPEDIA_SPORTS: {
   { id: "muay_thai", label: "Muay Thai", description: "Thai boxing athletes" },
   { id: "grappling", label: "Grappling", description: "Submission wrestling" },
   { id: "bjj", label: "BJJ", description: "Brazilian jiu-jitsu" },
+  { id: "cricket", label: "Cricket", description: "IPL, internationals & franchise stars" },
 ];
 
 export const COMBATPEDIA_FEATURED_SLUGS = [
@@ -23,4 +24,6 @@ export const COMBATPEDIA_FEATURED_SLUGS = [
   { slug: "alexandre-pantoja", sport: "mma" as const, label: "Alexandre Pantoja" },
   { slug: "conor-mcgregor", sport: "mma" as const, label: "Conor McGregor" },
   { slug: "mike-tyson", sport: "boxing" as const, label: "Mike Tyson" },
+  { slug: "virat-kohli", sport: "cricket" as const, label: "Virat Kohli" },
+  { slug: "ms-dhoni", sport: "cricket" as const, label: "MS Dhoni" },
 ];

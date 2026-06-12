@@ -59,7 +59,7 @@ export function RankingsSearchFilters() {
       </div>
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex gap-2 overflow-x-auto scroll-touch scrollbar-hide pb-1 -mx-1 px-1 sm:flex-wrap sm:overflow-visible sm:pb-0 sm:mx-0 sm:px-0">
+          <div className="flex gap-2 overflow-x-auto scroll-touch scrollbar-smooth pb-1 -mx-1 px-1 sm:flex-wrap sm:overflow-visible sm:pb-0 sm:mx-0 sm:px-0">
           {RANKING_SPORT_PILLS.map((pill) => {
             const active = sport === pill.id;
             return (

@@ -6,6 +6,7 @@ export type SportType =
   | "muay_thai"
   | "grappling"
   | "bjj"
+  | "cricket"
   | "other";
 
 export type ProfessionalRole =
@@ -50,11 +51,26 @@ export type OpportunitySeekType =
   | "looking_for_wrestlers"
   | "looking_for_mma_fighters"
   | "looking_for_boxers"
+  | "looking_for_cricketers"
   | "looking_for_coaches"
   | "looking_for_commentators"
   | "looking_for_referees"
   | "looking_for_managers"
   | "looking_for_announcers";
+
+export interface CricketPlayerStats {
+  role?: string;
+  battingHand?: "left" | "right";
+  bowlingStyle?: string;
+  league?: string;
+  team?: string;
+  status?: string;
+  iccTestRanking?: number;
+  iccOdiRanking?: number;
+  iccT20Ranking?: number;
+  careerRuns?: number;
+  careerWickets?: number;
+}
 
 export type ApplicationStatus =
   | "submitted"
@@ -138,6 +154,8 @@ export interface TalentProfile {
   reachCm?: number;
   stance?: string;
   record?: { wins: number; losses: number; draws: number };
+  /** Cricket-specific scouting stats (league hiring) */
+  cricketStats?: CricketPlayerStats;
   nationality: string;
   /** ISO 3166-1 alpha-2 for flag display */
   countryCode?: string;

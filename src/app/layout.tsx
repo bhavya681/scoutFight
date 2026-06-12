@@ -75,7 +75,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning className={`${inter.variable} ${oswald.variable} h-full`}>
       <body
         suppressHydrationWarning
-        className="min-h-full flex flex-col font-sans antialiased"
+        className="min-h-full flex flex-col font-sans antialiased scrollbar-smooth"
       >
         <Providers>
           {children}

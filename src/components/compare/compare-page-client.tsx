@@ -101,7 +101,7 @@ export function ComparePageClient() {
 
         {hydrated && items.length > 0 && !loading && talents.length > 0 && (
           <>
-            <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
+            <div className="flex gap-4 overflow-x-auto pb-2 scroll-touch scrollbar-smooth">
               {talents.map((t) => (
                 <CompareAthleteCard key={t.id} talent={t} />
               ))}

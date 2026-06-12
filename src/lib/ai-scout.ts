@@ -40,6 +40,7 @@ const SPORT_HINTS: { sport: SportType; terms: string[] }[] = [
   { sport: "muay_thai", terms: ["muay thai", "muay_thai"] },
   { sport: "bjj", terms: ["bjj", "jiu-jitsu", "jiu jitsu"] },
   { sport: "grappling", terms: ["grappl", "adcc", "submission"] },
+  { sport: "cricket", terms: ["cricket", "cricketer", "ipl", "bbl", "psl", "batsman", "bowler", "all-rounder"] },
 ];
 
 function normalize(text: string): string {

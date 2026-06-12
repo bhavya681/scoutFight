@@ -14,7 +14,7 @@ import {
 export const metadata: Metadata = {
   title: "Combatpedia",
   description:
-    "Modern combat sports encyclopedia — wrestling, MMA, boxing and more, powered by Wikipedia.",
+    "Modern sports encyclopedia — wrestling, MMA, boxing, cricket and more, powered by Wikipedia.",
 };
 
 export const dynamic = "force-dynamic";
@@ -41,7 +41,7 @@ export default async function CombatpediaPage({ searchParams }: PageProps) {
             Combatpedia Mode
           </h1>
           <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-3 leading-relaxed">
-            Switch between wrestling, MMA, boxing, and other combat disciplines. Each profile opens
+            Switch between wrestling, MMA, boxing, cricket, and other disciplines. Each profile opens
             a modern wiki-style article with infobox, sections, and an image gallery — inspired by
             professional fan wikis, powered by Wikipedia.
           </p>

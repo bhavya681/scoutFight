@@ -83,7 +83,7 @@ export function RankingsFilters({ count }: { count: number }) {
       </div>
 
       <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between">
-        <div className="flex gap-2 overflow-x-auto scroll-touch scrollbar-hide pb-0.5 -mx-1 px-1 sm:flex-wrap sm:overflow-visible">
+        <div className="flex gap-2 overflow-x-auto scroll-touch scrollbar-smooth pb-0.5 -mx-1 px-1 sm:flex-wrap sm:overflow-visible">
           <button
             type="button"
             onClick={() => update("sport", "", ["weightClass"])}

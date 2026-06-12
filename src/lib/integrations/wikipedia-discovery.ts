@@ -47,6 +47,18 @@ export const OTHER_COMBAT_SPORT_CATEGORIES: {
   { category: "Submission_wrestling_practitioners", sport: "grappling", limit: 15 },
 ];
 
+/** Cricket — Wikipedia category seeds for discover (complements TheSportsDB rosters) */
+export const CRICKET_WIKIPEDIA_CATEGORIES: {
+  category: string;
+  limit: number;
+}[] = [
+  { category: "Indian_Premier_League_cricketers", limit: 40 },
+  { category: "Big_Bash_League_cricketers", limit: 25 },
+  { category: "Pakistan_Super_League_cricketers", limit: 25 },
+  { category: "England_Test_cricketers", limit: 20 },
+  { category: "Australia_Test_cricketers", limit: 20 },
+];
+
 export function cleanWrestlerDisplayName(title: string): string {
   return title
     .replace(/_/g, " ")

@@ -19,6 +19,7 @@ function inferSportFromText(text: string): SportType {
   if (/muay thai/.test(t)) return "muay_thai";
   if (/jiu-jitsu|bjj|grappl|submission/.test(t)) return "grappling";
   if (/wrestl|wwe|aew|nxt/.test(t)) return "wrestling";
+  if (/cricket|cricketer|ipl|bbl|psl|batsman|bowler|wicket/.test(t)) return "cricket";
   return "mma";
 }
 
@@ -35,6 +36,7 @@ export async function resolveCombatpediaWikipediaTitle(
     `${titleCase}_(fighter)`,
     `${titleCase}_(wrestler)`,
     `${titleCase}_(boxer)`,
+    `${titleCase}_(cricketer)`,
     normalizedSlug.replace(/-/g, "_"),
   ];
 

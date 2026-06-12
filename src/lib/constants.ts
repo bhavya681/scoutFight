@@ -57,6 +57,7 @@ export const TALENT_CATEGORIES = {
     { id: "muay_thai", label: "Muay Thai Fighters" },
     { id: "grappling", label: "Grapplers" },
     { id: "bjj", label: "BJJ Athletes" },
+    { id: "cricket", label: "Cricketers" },
   ],
   professionals: [
     { id: "referee", label: "Referees" },
@@ -98,6 +99,7 @@ export const SPORTS = [
   { id: "muay_thai", label: "Muay Thai", icon: "🇹🇭" },
   { id: "bjj", label: "BJJ", icon: "🥋" },
   { id: "grappling", label: "Grappling", icon: "🤼" },
+  { id: "cricket", label: "Cricket", icon: "🏏" },
 ] as const;
 
 export const WEIGHT_CLASSES = {
@@ -114,6 +116,7 @@ export const WEIGHT_CLASSES = {
   muay_thai: ["Flyweight", "Bantamweight", "Featherweight", "Lightweight", "Welterweight", "Middleweight", "Heavyweight"],
   grappling: ["Light", "Middle", "Heavy"],
   bjj: ["Rooster", "Light", "Middle", "Heavy"],
+  cricket: ["Batsman", "Bowler", "All-rounder", "Wicket-keeper", "Wicket-keeper Batsman"],
 } as const;
 
 /** Deduped weight classes for filter dropdowns (avoids duplicate React keys) */
